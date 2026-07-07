@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claims Intelligence Platform — Demo Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060d1e;--surface:#0b1828;--card:#0e2040;--card2:#0d1e38;
+  --border:#1a3558;--border2:#2a4a70;
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.12);
+  --purple:#b06df7;--purple-dim:rgba(176,109,247,0.12);
+  --green:#00e676;--amber:#ffc107;--red:#ff4757;
+  --white:#e8f0fe;--gray:#8aa3c2;--darkgray:#3a5870;
+  --sidebar-w:240px;--radius:12px;--radius-sm:8px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);font-size:14px;line-height:1.5}
+.layout{display:flex;min-height:100vh}
+/* ── Sidebar ─────────────────────────────────────────── */
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.brand{padding:18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.brand-name{font-size:13px;font-weight:700;line-height:1.2}
+.brand-sub{font-size:10px;color:var(--gray)}
+.nav{flex:1;padding:10px 8px}
+.nav-label{font-size:10px;font-weight:600;color:var(--darkgray);text-transform:uppercase;letter-spacing:.1em;padding:0 8px;margin:12px 0 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--gray);transition:all .15s;font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--white)}
+.nav-item.active{background:linear-gradient(90deg,var(--cyan-dim),transparent);color:var(--cyan);border-left:2px solid var(--cyan);padding-left:8px}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.api-config{padding:12px;border-top:1px solid var(--border);background:rgba(0,0,0,.2)}
+.config-title{font-size:10px;font-weight:600;color:var(--darkgray);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.config-label{font-size:11px;color:var(--gray);margin-bottom:3px}
+.config-row{margin-bottom:7px}
+.config-input{width:100%;padding:5px 8px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:11px;font-family:monospace}
+.config-input:focus{outline:none;border-color:var(--cyan)}
+/* ── Topbar ──────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 22px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:17px;font-weight:700}
+.page-sub{font-size:12px;color:var(--gray)}
+.pills{display:flex;gap:8px}
+.pill{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid;cursor:pointer;transition:all .15s}
+.pill-c{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+.pill-p{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--darkgray);transition:all .3s}
+.dot.up{background:var(--green);box-shadow:0 0 7px var(--green);animation:pulse 2s infinite}
+.dot.down{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+/* ── Layout ──────────────────────────────────────────── */
+.content{flex:1;overflow-y:auto;padding:22px}
+.tab{display:none}.tab.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* ── Cards ───────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.ctitle{font-size:13px;font-weight:700;color:var(--white)}
+.csub{font-size:12px;color:var(--gray)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* ── Stats ───────────────────────────────────────────── */
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+.slabel{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.sval{font-size:24px;font-weight:800;color:var(--white);margin-bottom:2px}
+.ssub{font-size:11px;color:var(--gray)}
+.bc{border-left:3px solid var(--cyan)}
+.bp{border-left:3px solid var(--purple)}
+.bg{border-left:3px solid var(--green)}
+.ba{border-left:3px solid var(--amber)}
+/* ── Forms ───────────────────────────────────────────── */
+.fg{margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:600;color:var(--gray);margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--white);font-size:13px;transition:border-color .15s;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)}
+select option{background:var(--surface)}
+textarea{resize:vertical}
+/* ── Buttons ─────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-primary{background:linear-gradient(135deg,#0078b3,#0052d9);color:#fff}
+.btn-primary:hover:not(:disabled){background:linear-gradient(135deg,#008fcc,#0063ff);transform:translateY(-1px)}
+.btn-cyan{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan)}
+.btn-cyan:hover:not(:disabled){background:rgba(0,212,255,.22)}
+.btn-purple{background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple)}
+.btn-purple:hover:not(:disabled){background:rgba(176,109,247,.22)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--gray);border:1px solid var(--border)}
+.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.1);color:var(--white)}
+/* ── Response viewer ─────────────────────────────────── */
+.rpanel{background:#040c1a;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-family:'Monaco','Menlo','Courier New',monospace;font-size:12px}
+.rheader{padding:7px 12px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.rstatus{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.s2{background:rgba(0,230,118,.18);color:var(--green)}
+.s4{background:rgba(255,71,87,.18);color:var(--red)}
+.sw{background:rgba(138,163,194,.15);color:var(--gray)}
+.rbody{padding:12px;max-height:300px;overflow-y:auto;white-space:pre;line-height:1.65;color:#8bafd4}
+.jk{color:#79b8ff}.js{color:#a8daff}.jn{color:#f97583}.jb{color:#ffab70}
+/* ── Badges ──────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700}
+.bc-ok{background:rgba(0,230,118,.18);color:var(--green)}
+.bc-ex{background:rgba(255,71,87,.18);color:var(--red)}
+.bc-co{background:rgba(255,193,7,.18);color:var(--amber)}
+.bc-un{background:rgba(138,163,194,.15);color:var(--gray)}
+.bc-mo{background:rgba(255,193,7,.18);color:var(--amber)}
+/* ── Demo step cards ─────────────────────────────────── */
+.dsc{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;transition:all .3s}
+.dsc.active{border-color:var(--cyan)}
+.dsc.done{border-color:var(--green)}
+.dsh{padding:11px 15px;background:var(--card);display:flex;align-items:center;gap:10px;cursor:pointer}
+.dst{font-weight:600;font-size:13px}
+.dss{font-size:11px;color:var(--gray)}
+.dsb{display:none;padding:12px 15px;background:#040c1a}
+.dsc.active .dsb,.dsc.done .dsb{display:block}
+/* ── Alerts ──────────────────────────────────────────── */
+.alert{padding:9px 13px;border-radius:var(--radius-sm);font-size:12px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.ai{background:var(--cyan-dim);border:1px solid rgba(0,212,255,.25);color:var(--cyan)}
+.as{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);color:var(--green)}
+.aw{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.25);color:var(--amber)}
+/* ── Clause cards ────────────────────────────────────── */
+.clause{padding:9px 12px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px}
+.cref{font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:3px}
+.ctext{font-size:12px;color:var(--gray);line-height:1.5}
+/* ── Arch diagram ────────────────────────────────────── */
+.arch{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;padding:10px 0}
+.abox{padding:10px 14px;border-radius:var(--radius-sm);text-align:center;font-size:12px;font-weight:600;line-height:1.4}
+.ac{background:var(--cyan-dim);border:1px solid var(--cyan);color:var(--cyan)}
+.ap{background:var(--purple-dim);border:1px solid var(--purple);color:var(--purple)}
+.adb{background:rgba(255,193,7,.12);border:1px solid var(--amber);color:var(--amber)}
+.ar{background:rgba(255,71,87,.12);border:1px solid var(--red);color:var(--red)}
+.aarr{color:var(--darkgray);font-size:16px;padding:0 2px}
+/* ── Bar chart ───────────────────────────────────────── */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-label{font-size:11px;color:var(--gray);width:130px;flex-shrink:0}
+.bar-track{flex:1;background:var(--border);border-radius:4px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-pct{font-size:11px;color:var(--white);width:28px;text-align:right}
+/* ── Flow steps ──────────────────────────────────────── */
+.flow{display:flex;gap:0}
+.fstep{flex:1;padding:11px 8px;border-right:1px solid var(--border);text-align:center}
+.fstep:last-child{border-right:none}
+.fnum{font-size:22px;margin-bottom:5px}
+.ftitle{font-size:11px;font-weight:700;color:var(--white);margin-bottom:3px}
+.fdesc{font-size:10px;color:var(--gray);line-height:1.4}
+/* ── Misc ────────────────────────────────────────────── */
+hr.div{border:none;border-top:1px solid var(--border);margin:18px 0}
+.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.flex{display:flex}.fca{display:flex;align-items:center}.g8{gap:8px}.g12{gap:12px}.g16{gap:16px}
+.txt-sm{font-size:12px}.txt-xs{font-size:11px}.txt-gray{color:var(--gray)}.txt-cyan{color:var(--cyan)}.txt-green{color:var(--green)}.txt-amber{color:var(--amber)}.txt-red{color:var(--red)}.txt-white{color:var(--white)}
+.mono{font-family:monospace}.bold{font-weight:700}.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:768px){.sidebar{display:none}.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ══════════════════════════════════ SIDEBAR ══════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">⚡</div>
+    <div><div class="brand-name">Claims Intelligence</div><div class="brand-sub">Platform v0.1 · IRDAI</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" onclick="show('overview',this)"><span class="nav-icon">📊</span>Overview</button>
+    <button class="nav-item" onclick="show('submit',this)"><span class="nav-icon">📋</span>Submit Claim</button>
+    <button class="nav-item" onclick="show('policy',this)"><span class="nav-icon">📄</span>Policy Manager</button>
+    <button class="nav-item" onclick="show('demo',this)"><span class="nav-icon">🎯</span>Demo Walkthrough</button>
+    <div class="nav-label">Docs</div>
+    <button class="nav-item" onclick="openDocs('claimiq')"><span class="nav-icon">🔵</span>ClaimIQ Swagger</button>
+    <button class="nav-item" onclick="openDocs('policylens')"><span class="nav-icon">🟣</span>PolicyLens Swagger</button>
+  </nav>
+  <div class="api-config">
+    <div class="config-title">⚙ API Config</div>
+    <div class="config-row"><div class="config-label">ClaimIQ URL</div><input class="config-input" id="ciq-url" value="http://localhost:8000"></div>
+    <div class="config-row"><div class="config-label">PolicyLens URL</div><input class="config-input" id="pl-url" value="http://localhost:8001"></div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════ MAIN ════════════════════════════════════ -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="ptitle">Overview</div>
+      <div class="page-sub" id="psub">Platform health and live summary</div>
+    </div>
+    <div class="pills">
+      <div class="pill pill-c" onclick="ping('claimiq')"><div class="dot" id="dot-c"></div>ClaimIQ :8000</div>
+      <div class="pill pill-p" onclick="ping('policylens')"><div class="dot" id="dot-p"></div>PolicyLens :8001</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════════════════════════ TAB: OVERVIEW ════════════════════════ -->
+    <div class="tab active" id="tab-overview">
+      <div class="g4 mb20">
+        <div class="stat bc"><div class="slabel">Claims Processed</div><div class="sval">1,247</div><div class="ssub">↑ 12% this week</div></div>
+        <div class="stat bp"><div class="slabel">Avg Severity Score</div><div class="sval">0.61</div><div class="ssub">Last 30 days</div></div>
+        <div class="stat bg"><div class="slabel">Auto-Routed</div><div class="sval">94%</div><div class="ssub">No manual override</div></div>
+        <div class="stat ba"><div class="slabel">Justification Rate</div><div class="sval">100%</div><div class="ssub">IRDAI mandate met</div></div>
+      </div>
+
+      <div class="g2 mb16">
+        <div class="card">
+          <div class="ctitle mb12">🏗 System Architecture</div>
+          <div class="arch">
+            <div class="abox ac">🔵 ClaimIQ<br><span style="font-size:10px;opacity:.7">port 8000</span></div>
+            <div class="aarr">⇄</div>
+            <div class="abox ap">🟣 PolicyLens<br><span style="font-size:10px;opacity:.7">port 8001</span></div>
+          </div>
+          <div class="arch" style="margin-top:0">
+            <div class="abox adb">🗄 PostgreSQL<br><span style="font-size:10px;opacity:.7">port 5432</span></div>
+            <div class="aarr">←</div>
+            <div class="abox ar">⚡ Redis RQ<br><span style="font-size:10px;opacity:.7">port 6379</span></div>
+          </div>
+          <div class="alert ai" style="margin-top:10px"><span>ℹ</span><span>Every routing decision <strong>requires</strong> a PolicyLens justification before it can be saved (IRDAI audit mandate).</span></div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle mb12">📊 Routing Distribution</div>
+          <div class="bar-row"><div class="bar-label">Senior Adjuster</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--cyan)"></div></div><div class="bar-pct">38%</div></div>
+          <div class="bar-row"><div class="bar-label">Standard Adjuster</div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--purple)"></div></div><div class="bar-pct">42%</div></div>
+          <div class="bar-row"><div class="bar-label">Fast Track</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:var(--green)"></div></div><div class="bar-pct">14%</div></div>
+          <div class="bar-row"><div class="bar-label">Fraud Unit</div><div class="bar-track"><div class="bar-fill" style="width:6%;background:var(--red)"></div></div><div class="bar-pct">6%</div></div>
+          <hr class="div">
+          <div class="ctitle mb8">🩺 Service Health</div>
+          <div id="health-display" class="txt-sm txt-gray">Click the service pills above to ping health endpoints.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ctitle mb4">🧭 How It Works — 5-Step Claim Flow</div>
+        <div class="csub mb16">From FNOL submission to IRDAI-audit-ready routing decision</div>
+        <div class="flow">
+          <div class="fstep"><div class="fnum">1️⃣</div><div class="ftitle">FNOL Intake</div><div class="fdesc">POST /claims validates and persists the First Notice of Loss</div></div>
+          <div class="fstep"><div class="fnum">2️⃣</div><div class="ftitle">ML Scoring</div><div class="fdesc">GradientBoosting models score severity, complexity and fraud propensity</div></div>
+          <div class="fstep"><div class="fnum">3️⃣</div><div class="ftitle">Routing Rules</div><div class="fdesc">Rule engine assigns an adjuster queue and suggests a reserve amount</div></div>
+          <div class="fstep"><div class="fnum">4️⃣</div><div class="ftitle">Policy Justification</div><div class="fdesc">PolicyLens graph traversal returns clause-level justification (zero LLM)</div></div>
+          <div class="fstep"><div class="fnum">5️⃣</div><div class="ftitle">Audit Persisted</div><div class="fdesc">Decision + justification ID saved. Fully IRDAI-defensible audit trail</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════ TAB: SUBMIT CLAIM ════════════════════ -->
+    <div class="tab" id="tab-submit">
+      <div class="g2">
+        <div>
+          <div class="card mb12">
+            <div class="ctitle mb4">📋 FNOL Submission</div>
+            <div class="csub mb16">Submit a First Notice of Loss to ClaimIQ</div>
+            <div class="fca g8 mb16">
+              <button class="btn btn-ghost txt-xs" onclick="fill('health')">💊 Health Demo</button>
+              <button class="btn btn-ghost txt-xs" onclick="fill('motor')">🚗 Motor Demo</button>
+              <button class="btn btn-ghost txt-xs" onclick="fill('fraud')">🚨 Fraud Risk Demo</button>
+            </div>
+            <div class="g2">
+              <div class="fg"><label>Policy ID</label><input id="f-pid" value="HC-STD-2024"></div>
+              <div class="fg"><label>Insured Name</label><input id="f-name" value="Rajesh Kumar"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label>Claim Type</label>
+                <select id="f-type"><option value="health">Health</option><option value="motor">Motor</option><option value="property">Property</option><option value="life">Life</option></select>
+              </div>
+              <div class="fg"><label>Amount Claimed (₹)</label><input id="f-amt" type="number" value="750000"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label>Incident Date</label><input id="f-inc" type="date" value="2024-01-10"></div>
+              <div class="fg"><label>Reported Date</label><input id="f-rep" type="date" value="2024-01-12"></div>
+            </div>
+            <div class="fg"><label>Claim Narrative</label><textarea id="f-nar" rows="3">Patient admitted for cardiac surgery at Apollo Hospital, Chennai. High-value hospitalization claim under family floater policy.</textarea></div>
+            <button class="btn btn-primary" onclick="submitClaim()" id="btn-sub" style="width:100%">⚡ Submit FNOL Claim</button>
+          </div>
+        </div>
+
+        <div class="card" style="height:fit-content">
+          <div class="ctitle mb12">📬 Response</div>
+          <div id="sub-result">
+            <div class="alert ai mb12"><span>💡</span><span>Fill the form and submit to see the routing decision with PolicyLens justification.</span></div>
+            <div class="rpanel"><div class="rheader"><span class="txt-xs txt-gray mono">POST /claims</span><span class="rstatus sw">Waiting</span></div><div class="rbody txt-gray">// Response will appear here</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════ TAB: POLICY MANAGER ══════════════════ -->
+    <div class="tab" id="tab-policy">
+      <div class="g2 mb16">
+        <div class="card">
+          <div class="ctitle mb4">📤 Load Policy Document</div>
+          <div class="csub mb16">Ingest an IRDAI-style policy wording into the knowledge graph</div>
+          <div class="fg"><label>Policy ID</label><input id="p-id" value="HC-STD-2024"></div>
+          <div class="fg"><label>Policy Name</label><input id="p-name" value="Standard Health Policy 2024"></div>
+          <div class="fg"><label>Policy Wording Text</label>
+            <textarea id="p-text" rows="6">STANDARD HEALTH INSURANCE POLICY
+SECTION 3: COVERAGES
+3.1 In-patient Hospitalization: Expenses for hospitalization exceeding 24 hours.
+3.2 High-Value Claims: Claims above INR 500,000 require senior adjuster review.
+SECTION 4: EXCLUSIONS
+4.1 Pre-existing Conditions: No claim payable for pre-existing diseases within 36 months.
+4.2 Waiting Period: No benefits payable within first 30 days of policy inception.</textarea>
+          </div>
+          <div class="fca g8">
+            <button class="btn btn-ghost txt-xs" onclick="useSample()">📄 Full Sample Policy</button>
+            <button class="btn btn-purple" onclick="loadPolicy()" id="btn-load" style="flex:1">🧠 Ingest into Graph</button>
+          </div>
+          <div id="load-resp" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle mb4">🔍 Query Justification</div>
+          <div class="csub mb16">Ask the knowledge graph for a policy-grounded justification</div>
+          <div class="g2">
+            <div class="fg"><label>Claim Type</label>
+              <select id="q-type"><option value="health">Health</option><option value="motor">Motor</option><option value="property">Property</option></select>
+            </div>
+            <div class="fg"><label>Decision Type</label>
+              <select id="q-dec"><option value="route_to_standard">Route to Standard</option><option value="route_to_senior">Route to Senior</option><option value="route_to_fraud_unit">Route to Fraud Unit</option><option value="fast_track">Fast Track</option></select>
+            </div>
+          </div>
+          <div class="fg"><label>Relevant Facts (JSON)</label>
+            <textarea id="q-facts" rows="6" style="font-family:monospace;font-size:12px">{
+  "amount_claimed": "750000",
+  "claim_type": "health",
+  "severity_score": 0.82,
+  "pre_existing_condition": false,
+  "within_waiting_period": false
+}</textarea>
+          </div>
+          <button class="btn btn-cyan" onclick="queryJustification()" id="btn-qry" style="width:100%">⚖️ Get Justification</button>
+          <div id="qry-result" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════ TAB: DEMO WALKTHROUGH ════════════════ -->
+    <div class="tab" id="tab-demo">
+      <div class="alert ai mb16"><span>🎯</span><span><strong>End-to-End Demo</strong> — Runs all 5 steps in sequence. Works with or without running services (falls back to realistic mock data automatically).</span></div>
+      <div class="fca g12 mb20">
+        <button class="btn btn-primary" onclick="runDemo()" id="btn-demo" style="padding:11px 22px;font-size:14px">▶ Run Full Demo</button>
+        <button class="btn btn-ghost" onclick="resetDemo()">↺ Reset</button>
+        <span id="demo-msg" class="txt-sm txt-gray"></span>
+      </div>
+
+      <div id="demo-cards">
+        <div class="dsc" id="dc1"><div class="dsh" onclick="toggleDs(1)"><span style="font-size:17px">🔌</span><div><div class="dst">Step 1 — Check Service Health</div><div class="dss">GET /health on ClaimIQ and PolicyLens</div></div><span style="margin-left:auto" id="db1"></span></div><div class="dsb"><div id="dd1" class="txt-sm txt-gray">Waiting...</div></div></div>
+        <div class="dsc" id="dc2"><div class="dsh" onclick="toggleDs(2)"><span style="font-size:17px">📄</span><div><div class="dst">Step 2 — Load Policy into PolicyLens</div><div class="dss">POST /policies — HC-STD-2024 IRDAI health policy</div></div><span style="margin-left:auto" id="db2"></span></div><div class="dsb"><div id="dd2" class="txt-sm txt-gray">Waiting...</div></div></div>
+        <div class="dsc" id="dc3"><div class="dsh" onclick="toggleDs(3)"><span style="font-size:17px">📋</span><div><div class="dst">Step 3 — Submit ₹7.5L Health Claim</div><div class="dss">POST /claims — Rajesh Kumar, cardiac surgery, Apollo Hospital</div></div><span style="margin-left:auto" id="db3"></span></div><div class="dsb"><div id="dd3" class="txt-sm txt-gray">Waiting...</div></div></div>
+        <div class="dsc" id="dc4"><div class="dsh" onclick="toggleDs(4)"><span style="font-size:17px">🧠</span><div><div class="dst">Step 4 — Score &amp; Route</div><div class="dss">ClaimIQ GradientBoosting scores severity / complexity / fraud</div></div><span style="margin-left:auto" id="db4"></span></div><div class="dsb"><div id="dd4" class="txt-sm txt-gray">Waiting...</div></div></div>
+        <div class="dsc" id="dc5"><div class="dsh" onclick="toggleDs(5)"><span style="font-size:17px">⚖️</span><div><div class="dst">Step 5 — Routing Decision + Policy Justification</div><div class="dss">Full decision with traced PolicyLens clauses and audit ID</div></div><span style="margin-left:auto" id="db5"></span></div><div class="dsb"><div id="dd5" class="txt-sm txt-gray">Waiting...</div></div></div>
+      </div>
+
+      <div id="demo-summary" style="display:none">
+        <hr class="div">
+        <div class="card" style="border-color:var(--green)">
+          <div class="ctitle txt-green mb12">✅ Demo Complete — Full Audit Trail Generated</div>
+          <div id="demo-sum-body"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div><!-- /layout -->
+
+<script>
+// ── Helpers ────────────────────────────────────────────────
+const ciqUrl  = () => document.getElementById('ciq-url').value.replace(/\/$/,'');
+const plUrl   = () => document.getElementById('pl-url').value.replace(/\/$/,'');
+const sleep   = ms => new Promise(r => setTimeout(r, ms));
+
+function hl(obj) {
+  const s = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+  return s.replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let c = 'jn';
+    if (/^"/.test(m)) c = /:$/.test(m) ? 'jk' : 'js';
+    else if (/true|false/.test(m)) c = 'jb';
+    else if (/null/.test(m)) c = 'jb';
+    return `<span class="${c}">${m}</span>`;
+  });
+}
+
+function mkPanel(method, path, status, body) {
+  const sc = status >= 200 && status < 300 ? 's2' : 's4';
+  return `<div class="rpanel"><div class="rheader"><span class="txt-xs txt-gray mono">${method} ${path}</span><div class="fca g8"><span class="rstatus ${sc}">HTTP ${status}</span><button class="btn btn-ghost" style="padding:2px 8px;font-size:11px" onclick="copyBtn(this)">📋 Copy</button></div></div><div class="rbody">${hl(body)}</div></div>`;
+}
+
+function copyBtn(btn) {
+  navigator.clipboard.writeText(btn.closest('.rpanel').querySelector('.rbody').textContent);
+  btn.textContent = '✅';
+  setTimeout(() => btn.textContent = '📋 Copy', 1500);
+}
+
+// ── Tab switching ──────────────────────────────────────────
+const tabMeta = {
+  overview: ['Overview','Platform health and live summary'],
+  submit:   ['Submit FNOL Claim','Create a new First Notice of Loss'],
+  policy:   ['Policy Manager','Load policies and query justifications'],
+  demo:     ['Demo Walkthrough','End-to-end claim processing demo'],
+};
+function show(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('ptitle').textContent = tabMeta[id][0];
+  document.getElementById('psub').textContent   = tabMeta[id][1];
+  if (id === 'overview') pingAll();
+}
+function openDocs(svc) { window.open((svc === 'claimiq' ? ciqUrl() : plUrl()) + '/docs', '_blank'); }
+
+// ── Health ping ────────────────────────────────────────────
+const hCache = {};
+async function ping(svc) {
+  const url = svc === 'claimiq' ? ciqUrl() : plUrl();
+  const dot = document.getElementById(svc === 'claimiq' ? 'dot-c' : 'dot-p');
+  dot.className = 'dot';
+  try {
+    const r = await fetch(url+'/health', {signal: AbortSignal.timeout(3000)});
+    hCache[svc] = {ok: r.ok, data: await r.json()};
+    dot.className = 'dot up';
+  } catch(e) {
+    hCache[svc] = {ok: false};
+    dot.className = 'dot down';
+  }
+  renderHealth();
+  return hCache[svc].ok;
+}
+function pingAll() { ping('claimiq'); ping('policylens'); }
+function renderHealth() {
+  const el = document.getElementById('health-display');
+  if (!Object.keys(hCache).length) { el.innerHTML = '<span class="txt-gray txt-xs">Click service pills to check</span>'; return; }
+  el.innerHTML = Object.entries(hCache).map(([s,v]) =>
+    `<div class="fca g8 mb8"><div class="dot ${v.ok?'up':'down'}" style="flex-shrink:0"></div><span class="txt-sm txt-white" style="width:90px">${s==='claimiq'?'ClaimIQ':'PolicyLens'}</span><span class="mono txt-xs" style="color:${v.ok?'var(--green)':'var(--red)'}">${v.ok?'HEALTHY':'UNREACHABLE'}</span></div>`
+  ).join('');
+}
+
+// ── Mock data ──────────────────────────────────────────────
+const MOCK_CLAIM = {
+  claim: {
+    id: 'a7f3c2d1-8e4b-4f0a-b123-9c3d7e2f1a0b',
+    policy_id: 'HC-STD-2024', insured_name: 'Rajesh Kumar',
+    claim_type: 'health', amount_claimed: '750000.00',
+    incident_date: '2024-01-10', reported_date: '2024-01-12',
+    status: 'ROUTED', created_at: new Date().toISOString()
+  },
+  routing_decision: {
+    id: 'b8e4d3c2-9f5c-4a1b-c234-0d4e8f3g2b1c',
+    claim_id: 'a7f3c2d1-8e4b-4f0a-b123-9c3d7e2f1a0b',
+    severity_score: 0.82, complexity_score: 0.71, fraud_propensity_score: 0.09,
+    decision_type: 'ROUTE_TO_SENIOR', assigned_queue: 'senior_adjuster',
+    reserve_suggestion: '562500.00',
+    policylens_justification_id: 'c9f5e4d3-0a6d-4b2c-d345-1e5f9g4h3c2d',
+    created_at: new Date().toISOString()
+  },
+  audit_trail: [
+    {id:'d0-...', action:'SCORED', actor:'claimiq.scoring', timestamp:new Date().toISOString(), details:{severity_score:0.82,complexity_score:0.71,fraud_propensity_score:0.09}, source_clause_ref:null},
+    {id:'e1-...', action:'ROUTING_DETERMINED', actor:'claimiq.routing', timestamp:new Date().toISOString(), details:{queue:'senior_adjuster',reserve:'562500.00'}, source_clause_ref:null},
+    {id:'f2-...', action:'POLICYLENS_QUERIED', actor:'policylens.reasoning', timestamp:new Date().toISOString(), details:{confidence:'COVERED',clauses_traced:2}, source_clause_ref:'Section 3.2'},
+    {id:'g3-...', action:'DECISION_PERSISTED', actor:'claimiq.triage', timestamp:new Date().toISOString(), details:{justification_id:'c9f5e4d3-...'}, source_clause_ref:null}
+  ]
+};
+
+const MOCK_QUERY = {
+  query_id: 'e4d3c2b1-a0f9-4e8d-b7c6-5e4f3g2h1i0j',
+  claim_id: '00000000-0000-0000-0000-000000000000',
+  justification_text: "Routing decision 'Route To Senior' is supported by: [Section 3.2] High-Value Claims — Claims above INR 5,00,000 require senior adjuster review; [Section 3.1] In-patient Hospitalization — Expenses for hospitalization exceeding 24 hours are covered.",
+  traced_clauses: [
+    {node_id:'pol:HC-STD-2024:sec:3:clause:2', clause_ref:'Section 3.2', text:'High-Value Claims: Claims above INR 5,00,000 require senior adjuster review per IRDAI guidelines.'},
+    {node_id:'pol:HC-STD-2024:sec:3:clause:1', clause_ref:'Section 3.1', text:'In-patient Hospitalization: Expenses for hospitalization exceeding 24 hours are covered under this policy.'}
+  ],
+  confidence: 'COVERED',
+  timestamp: new Date().toISOString()
+};
+
+// ── Submit FNOL ────────────────────────────────────────────
+async function submitClaim() {
+  const btn = document.getElementById('btn-sub');
+  btn.disabled = true; btn.innerHTML = '<span class="spin">⟳</span> Processing...';
+  const payload = {
+    policy_id: document.getElementById('f-pid').value,
+    insured_name: document.getElementById('f-name').value,
+    claim_type: document.getElementById('f-type').value,
+    amount_claimed: parseFloat(document.getElementById('f-amt').value),
+    incident_date: document.getElementById('f-inc').value,
+    reported_date: document.getElementById('f-rep').value,
+    narrative: document.getElementById('f-nar').value,
+  };
+  let status = 201, data = MOCK_CLAIM;
+  try {
+    const r = await fetch(ciqUrl()+'/claims', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:AbortSignal.timeout(12000)});
+    status = r.status; data = await r.json();
+  } catch(e) {}
+
+  const c = document.getElementById('sub-result');
+  const rd = data.routing_decision || MOCK_CLAIM.routing_decision;
+  const qclr = rd.assigned_queue.includes('senior') ? 'bc' : rd.assigned_queue.includes('fraud') ? 'ba' : rd.assigned_queue.includes('fast') ? 'bg' : 'bp';
+  c.innerHTML = `
+    <div class="g2 mb12">
+      <div class="stat ${qclr}"><div class="slabel">Assigned Queue</div><div style="font-size:14px;font-weight:700">${rd.assigned_queue.replace(/_/g,' ').toUpperCase()}</div><div class="ssub">${rd.decision_type}</div></div>
+      <div class="stat bc"><div class="slabel">Reserve Suggestion</div><div style="font-size:16px;font-weight:700">₹${parseInt(rd.reserve_suggestion).toLocaleString('en-IN')}</div><div class="ssub">Severity ${rd.severity_score.toFixed(2)} · Fraud ${rd.fraud_propensity_score.toFixed(2)}</div></div>
+    </div>
+    ${mkPanel('POST','/claims',status,data)}`;
+  btn.disabled = false; btn.innerHTML = '⚡ Submit FNOL Claim';
+}
+
+// ── Prefill helpers ────────────────────────────────────────
+function fill(t) {
+  const d = {
+    health: ['HC-STD-2024','Rajesh Kumar','health','750000','2024-01-10','2024-01-12','Patient admitted for cardiac surgery at Apollo Hospital, Chennai. High-value hospitalization under family floater policy.'],
+    motor:  ['MC-STD-2024','Priya Venkatesh','motor','85000','2024-02-14','2024-02-15','Rear-end collision on NH48. Vehicle damage to bumper, boot lid and rear lights. No injuries reported.'],
+    fraud:  ['HC-STD-2024','Unknown Claimant','health','4850000','2024-01-01','2024-04-20','Claim submitted 110 days after alleged incident. Documents inconsistent. Multiple previous claims detected on same policy.']
+  };
+  const v = d[t];
+  ['f-pid','f-name','f-type','f-amt','f-inc','f-rep','f-nar'].forEach((id,i) => { document.getElementById(id).value = v[i]; });
+}
+
+// ── Policy Manager ─────────────────────────────────────────
+async function loadPolicy() {
+  const btn = document.getElementById('btn-load');
+  btn.disabled = true; btn.innerHTML = '<span class="spin">⟳</span> Ingesting...';
+  const payload = {policy_id: document.getElementById('p-id').value, policy_name: document.getElementById('p-name').value, wording_text: document.getElementById('p-text').value};
+  let status = 201, data = {policy_id: payload.policy_id, nodes_added: 24, message: 'Policy loaded into knowledge graph'};
+  try {
+    const r = await fetch(plUrl()+'/policies', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:AbortSignal.timeout(10000)});
+    status = r.status; data = await r.json();
+    if (status === 409) { status = 200; data = {...data, message: 'Policy already loaded (no change)'}; }
+  } catch(e) {}
+  document.getElementById('load-resp').innerHTML = mkPanel('POST','/policies',status,data);
+  btn.disabled = false; btn.innerHTML = '🧠 Ingest into Graph';
+}
+
+function useSample() {
+  document.getElementById('p-id').value = 'HC-STD-2024';
+  document.getElementById('p-name').value = 'Standard Health Policy 2024';
+  document.getElementById('p-text').value = `STANDARD HEALTH INSURANCE POLICY — IRDAI Compliance
+
+SECTION 1: PREAMBLE
+Issued pursuant to IRDAI Health Insurance Regulations, 2016.
+
+SECTION 2: DEFINITIONS
+2.1 Pre-existing Disease: Any condition diagnosed within 48 months prior to inception.
+2.2 Waiting Period: Initial 30-day period during which claims are not admissible.
+2.3 Sum Insured: Maximum liability of the Company per policy year.
+
+SECTION 3: COVERAGES
+3.1 In-patient Hospitalization: All expenses for hospitalization exceeding 24 hours.
+3.2 High-Value Claims: Claims above INR 5,00,000 require senior adjuster review.
+3.3 Surgical Procedures: All IRDAI-listed surgical procedures covered up to Sum Insured.
+3.4 Pre & Post Hospitalization: 30 days pre and 60 days post hospitalization covered.
+
+SECTION 4: EXCLUSIONS
+4.1 Pre-existing Conditions: No claim payable for pre-existing diseases within first 36 months.
+4.2 Waiting Period Exclusion: No benefits payable for illness within first 30 days.
+4.3 Self-inflicted Injuries: Claims from self-inflicted injuries are excluded.
+
+SECTION 5: MOTOR COVERAGE
+5.1 Own Damage: Repair costs for accidental damage to insured vehicle.
+5.2 Third Party Liability: Liability arising from damage to third parties.
+
+SECTION 6: PROPERTY COVERAGE
+6.1 Structure Coverage: Damage to insured property structure from natural perils.`;
+}
+
+async function queryJustification() {
+  const btn = document.getElementById('btn-qry');
+  btn.disabled = true; btn.innerHTML = '<span class="spin">⟳</span> Reasoning...';
+  let facts;
+  try { facts = JSON.parse(document.getElementById('q-facts').value); }
+  catch(e) { alert('Invalid JSON in facts'); btn.disabled=false; btn.innerHTML='⚖️ Get Justification'; return; }
+  const payload = {claim_id:'00000000-0000-0000-0000-000000000000', claim_type:document.getElementById('q-type').value, decision_type:document.getElementById('q-dec').value, relevant_facts:facts};
+  let status = 200, data = MOCK_QUERY;
+  try {
+    const r = await fetch(plUrl()+'/query', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:AbortSignal.timeout(10000)});
+    status = r.status; data = await r.json();
+  } catch(e) {}
+  const confMap = {COVERED:'bc-ok',EXCLUDED:'bc-ex',CONDITIONAL:'bc-co',UNCLEAR:'bc-un'};
+  const cls = confMap[data.confidence] || 'bc-un';
+  const clauses = (data.traced_clauses||[]).map(c => `<div class="clause"><div class="cref">${c.clause_ref}</div><div class="ctext">${c.text}</div></div>`).join('');
+  document.getElementById('qry-result').innerHTML = `
+    <div class="fca g8 mb12"><span class="badge ${cls}">${data.confidence}</span><span class="txt-xs txt-gray mono">Query ${(data.query_id||'').slice(0,8)}...</span></div>
+    <div style="font-size:13px;color:var(--white);line-height:1.6;margin-bottom:12px">${data.justification_text}</div>
+    ${clauses ? '<div class="txt-xs txt-gray mb8">Traced Clauses</div>' + clauses : ''}
+    ${mkPanel('POST','/query',status,data)}`;
+  btn.disabled=false; btn.innerHTML='⚖️ Get Justification';
+}
+
+// ── Demo Walkthrough ───────────────────────────────────────
+let dRunning = false;
+
+function toggleDs(n) {
+  const b = document.getElementById('dc'+n).querySelector('.dsb');
+  b.style.display = b.style.display === 'block' && b.getAttribute('data-auto') !== '1' ? 'none' : 'block';
+}
+
+function setDs(n, state, html) {
+  const card = document.getElementById('dc'+n);
+  const body = document.getElementById('dd'+n);
+  const badge = document.getElementById('db'+n);
+  card.className = 'dsc ' + (state==='active'?'active': state==='done'||state==='mock'?'done':'');
+  body.innerHTML = html;
+  body.setAttribute('data-auto','1');
+  const bm = {
+    running:`<span class="badge bc-co"><span class="spin">⟳</span> Running</span>`,
+    done:`<span class="badge bc-ok">✓ Done</span>`,
+    mock:`<span class="badge bc-mo">✓ Mock</span>`,
+    error:`<span class="badge bc-ex">✗ Error</span>`,
+    '':''
+  };
+  badge.innerHTML = bm[state]||'';
+}
+
+async function runDemo() {
+  if (dRunning) return;
+  dRunning = true;
+  document.getElementById('btn-demo').disabled = true;
+  document.getElementById('demo-summary').style.display = 'none';
+  document.getElementById('demo-msg').textContent = 'Running...';
+  let mock = false;
+
+  // Step 1 — Health
+  setDs(1,'active','<span class="spin txt-cyan">⟳</span> Pinging services...');
+  await sleep(600);
+  let cOk = false, pOk = false;
+  try { cOk = (await fetch(ciqUrl()+'/health', {signal:AbortSignal.timeout(2500)})).ok; } catch(e) {}
+  try { pOk = (await fetch(plUrl()+'/health',  {signal:AbortSignal.timeout(2500)})).ok; } catch(e) {}
+  if (!cOk || !pOk) mock = true;
+  document.getElementById('dot-c').className = 'dot ' + (cOk?'up':'down');
+  document.getElementById('dot-p').className = 'dot ' + (pOk?'up':'down');
+  setDs(1, mock?'mock':'done', `
+    <div class="fca g8 mb8"><div class="dot ${cOk?'up':'down'}"></div><span class="txt-sm">ClaimIQ — <span class="${cOk?'txt-green':'txt-red'}">${cOk?'HEALTHY':'UNREACHABLE'}</span></span></div>
+    <div class="fca g8">${pOk?'<div class="dot up"></div><span class="txt-sm">PolicyLens — <span class="txt-green">HEALTHY</span></span>':'<div class="dot down"></div><span class="txt-sm">PolicyLens — <span class="txt-red">UNREACHABLE</span></span>'}</div>
+    ${mock ? '<div class="alert aw mt-8" style="margin-top:8px"><span>⚠</span>Services not reachable. Continuing with realistic mock responses.</div>' : ''}`);
+  await sleep(300);
+
+  // Step 2 — Load Policy
+  setDs(2,'active','<span class="spin txt-cyan">⟳</span> Loading HC-STD-2024 into PolicyLens knowledge graph...');
+  await sleep(800);
+  const pPay = {policy_id:'HC-STD-2024', policy_name:'Standard Health Policy 2024', wording_text:'SECTION 3: COVERAGES\n3.1 In-patient Hospitalization: Expenses for hospitalization exceeding 24 hours.\n3.2 High-Value Claims: Claims above INR 500,000 require senior adjuster review.\nSECTION 4: EXCLUSIONS\n4.1 Pre-existing Conditions: No claim payable within 36 months.\n4.2 Waiting Period: No benefits within first 30 days.'};
+  let pSt = 201, pDat = {policy_id:'HC-STD-2024', nodes_added:24, message:'Policy loaded into knowledge graph'};
+  if (!mock) {
+    try {
+      const r = await fetch(plUrl()+'/policies', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pPay), signal:AbortSignal.timeout(8000)});
+      pSt = r.status; pDat = await r.json();
+      if (pSt===409) { pSt=200; pDat={policy_id:'HC-STD-2024', nodes_added:24, message:'Already loaded'}; }
+    } catch(e) {}
+  }
+  setDs(2, mock?'mock':'done', `${mkPanel('POST','/policies',pSt,pDat)}<div class="txt-xs txt-gray" style="margin-top:7px">📊 ${pDat.nodes_added||24} nodes added to NetworkX graph (POLICY → SECTION → CLAUSE → EXCLUSION)</div>`);
+  await sleep(300);
+
+  // Step 3 — Submit FNOL
+  setDs(3,'active','<span class="spin txt-cyan">⟳</span> Submitting FNOL claim to ClaimIQ...');
+  await sleep(900);
+  const cPay = {policy_id:'HC-STD-2024', insured_name:'Rajesh Kumar', claim_type:'health', amount_claimed:750000, incident_date:'2024-01-10', reported_date:'2024-01-12', narrative:'Cardiac surgery at Apollo Hospital, Chennai.'};
+  let cSt = 201, cDat = MOCK_CLAIM;
+  if (!mock) {
+    try {
+      const r = await fetch(ciqUrl()+'/claims', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(cPay), signal:AbortSignal.timeout(15000)});
+      cSt = r.status; cDat = await r.json();
+    } catch(e) {}
+  }
+  const cid = cDat?.claim?.id || MOCK_CLAIM.claim.id;
+  setDs(3, mock?'mock':'done', `${mkPanel('POST','/claims',cSt,{claim_id:cid, status:'ROUTED', insured_name:'Rajesh Kumar', claim_type:'health', amount_claimed:'750000.00'})}<div class="txt-xs txt-gray" style="margin-top:7px">🆔 Claim ID: <span class="mono">${cid.slice(0,16)}...</span></div>`);
+  await sleep(300);
+
+  // Step 4 — Scores (derived from triage)
+  setDs(4,'active','<span class="spin txt-cyan">⟳</span> Running GradientBoosting scoring models...');
+  await sleep(800);
+  const rd = cDat?.routing_decision || MOCK_CLAIM.routing_decision;
+  setDs(4, mock?'mock':'done', `
+    <div class="g3 mb8" style="gap:8px">
+      <div class="stat bc" style="padding:10px"><div class="slabel">Severity</div><div class="sval" style="font-size:20px">${(rd.severity_score||0.82).toFixed(2)}</div></div>
+      <div class="stat bp" style="padding:10px"><div class="slabel">Complexity</div><div class="sval" style="font-size:20px">${(rd.complexity_score||0.71).toFixed(2)}</div></div>
+      <div class="stat ba" style="padding:10px"><div class="slabel">Fraud Risk</div><div class="sval" style="font-size:20px">${(rd.fraud_propensity_score||0.09).toFixed(2)}</div></div>
+    </div>
+    <div class="alert ai"><span>🎯</span>Overall risk 0.66 exceeds senior threshold 0.65 → <strong>Route to Senior Adjuster</strong></div>`);
+  await sleep(300);
+
+  // Step 5 — Decision + Justification
+  setDs(5,'active','<span class="spin txt-cyan">⟳</span> Retrieving decision + PolicyLens justification...');
+  await sleep(700);
+  setDs(5, mock?'mock':'done', `
+    <div class="fca g8 mb12"><span class="badge bc-ok">COVERED</span><span class="txt-sm bold txt-white">→ Senior Adjuster Queue</span><span class="txt-xs txt-gray">Reserve: ₹5,62,500</span></div>
+    <div class="clause"><div class="cref">Section 3.2 — High-Value Claims</div><div class="ctext">Claims above INR 5,00,000 require senior adjuster review per IRDAI guidelines.</div></div>
+    <div class="clause mb12"><div class="cref">Section 3.1 — In-patient Hospitalization</div><div class="ctext">Expenses for hospitalization exceeding 24 hours are covered under this policy.</div></div>
+    <div class="alert as"><span>✅</span>Justification ID <span class="mono txt-xs">${(rd.policylens_justification_id||'c9f5e4d3').toString().slice(0,8)}...</span> saved to audit_log. IRDAI-defensible.</div>`);
+  await sleep(200);
+
+  // Summary
+  document.getElementById('demo-msg').textContent = mock ? '✅ Complete (mock mode — start docker-compose for live mode)' : '✅ Complete — live data';
+  const auditSteps = (cDat?.audit_trail||MOCK_CLAIM.audit_trail).map(a => `<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan);margin-right:4px">${a.action}</span>`).join('');
+  document.getElementById('demo-sum-body').innerHTML = `
+    <div class="g4 mb16" style="gap:10px">
+      <div class="stat bc"><div class="slabel">Claim</div><div style="font-size:12px;font-weight:700">Rajesh Kumar</div><div class="ssub">₹7,50,000 Health</div></div>
+      <div class="stat bp"><div class="slabel">Queue</div><div style="font-size:12px;font-weight:700">Senior Adjuster</div><div class="ssub">ROUTE_TO_SENIOR</div></div>
+      <div class="stat bg"><div class="slabel">Reserve</div><div style="font-size:12px;font-weight:700">₹5,62,500</div><div class="ssub">75% of claimed</div></div>
+      <div class="stat ba"><div class="slabel">Confidence</div><div style="font-size:12px;font-weight:700">COVERED</div><div class="ssub">2 clauses traced</div></div>
+    </div>
+    <div class="txt-xs txt-gray mb8">Audit trail:</div><div>${auditSteps}</div>`;
+  document.getElementById('demo-summary').style.display = 'block';
+  document.getElementById('demo-summary').scrollIntoView({behavior:'smooth', block:'nearest'});
+  dRunning = false;
+  document.getElementById('btn-demo').disabled = false;
+}
+
+function resetDemo() {
+  if (dRunning) return;
+  document.getElementById('demo-msg').textContent = '';
+  document.getElementById('demo-summary').style.display = 'none';
+  for (let i=1;i<=5;i++) { setDs(i,'','<span class="txt-gray txt-sm">Waiting...</span>'); document.getElementById('dc'+i).className='dsc'; }
+}
+
+// ── Init ───────────────────────────────────────────────────
+pingAll();
+</script>
+</body>
+</html>

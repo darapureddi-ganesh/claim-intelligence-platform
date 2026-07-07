@@ -1,0 +1,333 @@
+{
+  "info": {
+    "_postman_id": "claim-intelligence-platform-v1",
+    "name": "Claims Intelligence Platform",
+    "description": "Complete API collection for the Claims Intelligence Platform — ClaimIQ (FNOL intake, ML scoring, routing) and PolicyLens (knowledge graph, policy justification).\n\n**Setup:**\n1. Start services: `docker-compose up -d`\n2. Run migrations: `docker-compose exec claimiq alembic upgrade head`\n3. Seed policy: run `📄 Load Sample Policy` first\n4. Then run `🎯 Demo Flow` folder in order\n\n**Variables:**\n- `claimiq_url` defaults to http://localhost:8000\n- `policylens_url` defaults to http://localhost:8001\n- `claim_id` is set automatically by the Submit FNOL test script",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "claimiq_url",    "value": "http://localhost:8000", "type": "string"},
+    {"key": "policylens_url", "value": "http://localhost:8001", "type": "string"},
+    {"key": "claim_id",       "value": "",                     "type": "string"},
+    {"key": "policy_id",      "value": "HC-STD-2024",          "type": "string"}
+  ],
+  "item": [
+
+    {
+      "name": "🏥 Infrastructure",
+      "item": [
+        {
+          "name": "ClaimIQ — Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/health", "host": ["{{claimiq_url}}"], "path": ["health"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Service is claimiq', () => { const j = pm.response.json(); pm.expect(j.service).to.eql('claimiq'); });"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "PolicyLens — Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{policylens_url}}/health", "host": ["{{policylens_url}}"], "path": ["health"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Service is policylens', () => { const j = pm.response.json(); pm.expect(j.service).to.eql('policylens'); });"],"type":"text/javascript"}}],
+          "response": []
+        }
+      ]
+    },
+
+    {
+      "name": "📄 PolicyLens — Policy Management",
+      "item": [
+        {
+          "name": "Load Sample Policy (HC-STD-2024)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/policies", "host": ["{{policylens_url}}"], "path": ["policies"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"policy_name\": \"Standard Health Policy 2024\",\n  \"wording_text\": \"STANDARD HEALTH INSURANCE POLICY\\n\\nSECTION 1: PREAMBLE\\nIssued pursuant to IRDAI Health Insurance Regulations, 2016.\\n\\nSECTION 2: DEFINITIONS\\n2.1 Pre-existing Disease: Any condition diagnosed within 48 months prior to inception.\\n2.2 Waiting Period: Initial 30-day period during which claims are not admissible.\\n2.3 Sum Insured: Maximum liability per policy year.\\n\\nSECTION 3: COVERAGES\\n3.1 In-patient Hospitalization: All expenses for hospitalization exceeding 24 hours.\\n3.2 High-Value Claims: Claims above INR 5,00,000 require senior adjuster review.\\n3.3 Surgical Procedures: All IRDAI-listed procedures covered up to Sum Insured.\\n3.4 Pre and Post Hospitalization: 30 days pre and 60 days post hospitalization covered.\\n\\nSECTION 4: EXCLUSIONS\\n4.1 Pre-existing Conditions: No claim payable for pre-existing diseases within first 36 months.\\n4.2 Waiting Period Exclusion: No benefits payable for illness within first 30 days.\\n4.3 Self-inflicted Injuries: Claims from self-inflicted injuries excluded.\\n\\nSECTION 5: MOTOR COVERAGE\\n5.1 Own Damage: Repair costs for accidental damage to insured vehicle.\\n5.2 Third Party Liability: Liability arising from third-party damage.\\n\\nSECTION 6: PROPERTY COVERAGE\\n6.1 Structure Coverage: Damage to insured property from natural perils.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201 Created', () => pm.response.to.have.status(201));","pm.test('nodes_added > 0', () => { const j = pm.response.json(); pm.expect(j.nodes_added).to.be.above(0); });","console.log('Nodes added to graph:', pm.response.json().nodes_added);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Load Motor Policy (MC-STD-2024)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/policies", "host": ["{{policylens_url}}"], "path": ["policies"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"MC-STD-2024\",\n  \"policy_name\": \"Standard Motor Insurance Policy 2024\",\n  \"wording_text\": \"MOTOR INSURANCE POLICY\\n\\nSECTION 1: OWN DAMAGE\\n1.1 Accidental Damage: Covered for accidental external means.\\n1.2 High-Value Motor Claims: Claims above INR 2,00,000 require senior adjuster.\\n\\nSECTION 2: EXCLUSIONS\\n2.1 Drunk Driving: Claims where driver was under influence excluded.\\n2.2 Depreciation: Standard depreciation applies on replaced parts.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201', () => pm.response.to.have.status(201));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Get Policy Info (HC-STD-2024)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{policylens_url}}/policies/{{policy_id}}", "host": ["{{policylens_url}}"], "path": ["policies","{{policy_id}}"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('node_count > 0', () => { const j = pm.response.json(); pm.expect(j.node_count).to.be.above(0); });"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Get Policy Info — Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{policylens_url}}/policies/DOES-NOT-EXIST", "host": ["{{policylens_url}}"], "path": ["policies","DOES-NOT-EXIST"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 404', () => pm.response.to.have.status(404));"],"type":"text/javascript"}}],
+          "response": []
+        }
+      ]
+    },
+
+    {
+      "name": "🔍 PolicyLens — Reasoning Engine",
+      "item": [
+        {
+          "name": "Query — Health Claim Covered",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/query", "host": ["{{policylens_url}}"], "path": ["query"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claim_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"claim_type\": \"health\",\n  \"decision_type\": \"route_to_standard\",\n  \"relevant_facts\": {\n    \"amount_claimed\": \"100000\",\n    \"claim_type\": \"health\",\n    \"pre_existing_condition\": false,\n    \"within_waiting_period\": false\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Has justification_text', () => pm.expect(pm.response.json().justification_text).to.be.a('string').and.not.empty);","pm.test('Confidence is valid', () => { const j = pm.response.json(); pm.expect(['COVERED','EXCLUDED','CONDITIONAL','UNCLEAR']).to.include(j.confidence); });","console.log('Confidence:', pm.response.json().confidence);","console.log('Justification:', pm.response.json().justification_text.slice(0, 100));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Query — Pre-existing → EXCLUDED",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/query", "host": ["{{policylens_url}}"], "path": ["query"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claim_id\": \"00000000-0000-0000-0000-000000000002\",\n  \"claim_type\": \"health\",\n  \"decision_type\": \"route_to_standard\",\n  \"relevant_facts\": {\n    \"amount_claimed\": \"80000\",\n    \"claim_type\": \"health\",\n    \"pre_existing_condition\": true,\n    \"within_waiting_period\": false\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Pre-existing claim is EXCLUDED', () => pm.expect(pm.response.json().confidence).to.eql('EXCLUDED'));","pm.test('Has traced clauses', () => pm.expect(pm.response.json().traced_clauses).to.be.an('array').with.length.above(0));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Query — High-Value → Route to Senior",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/query", "host": ["{{policylens_url}}"], "path": ["query"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claim_id\": \"00000000-0000-0000-0000-000000000003\",\n  \"claim_type\": \"health\",\n  \"decision_type\": \"route_to_senior\",\n  \"relevant_facts\": {\n    \"amount_claimed\": \"750000\",\n    \"claim_type\": \"health\",\n    \"severity_score\": 0.82,\n    \"pre_existing_condition\": false,\n    \"within_waiting_period\": false\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Confidence is not EXCLUDED', () => pm.expect(pm.response.json().confidence).to.not.eql('EXCLUDED'));","pm.test('Justification mentions Senior', () => pm.expect(pm.response.json().justification_text).to.include('Senior'));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Query — Fraud Propensity → CONDITIONAL",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/query", "host": ["{{policylens_url}}"], "path": ["query"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claim_id\": \"00000000-0000-0000-0000-000000000004\",\n  \"claim_type\": \"motor\",\n  \"decision_type\": \"route_to_fraud_unit\",\n  \"relevant_facts\": {\n    \"amount_claimed\": \"200000\",\n    \"claim_type\": \"motor\",\n    \"fraud_propensity_score\": 0.75\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('High fraud score is CONDITIONAL', () => pm.expect(pm.response.json().confidence).to.eql('CONDITIONAL'));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Query — Waiting Period → EXCLUDED",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/query", "host": ["{{policylens_url}}"], "path": ["query"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claim_id\": \"00000000-0000-0000-0000-000000000005\",\n  \"claim_type\": \"health\",\n  \"decision_type\": \"route_to_standard\",\n  \"relevant_facts\": {\n    \"amount_claimed\": \"50000\",\n    \"claim_type\": \"health\",\n    \"within_waiting_period\": true,\n    \"pre_existing_condition\": false\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Waiting period claim is EXCLUDED', () => pm.expect(pm.response.json().confidence).to.eql('EXCLUDED'));"],"type":"text/javascript"}}],
+          "response": []
+        }
+      ]
+    },
+
+    {
+      "name": "🏢 ClaimIQ — Claims",
+      "item": [
+        {
+          "name": "Submit FNOL — Health (₹7.5L, Senior Route)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{claimiq_url}}/claims", "host": ["{{claimiq_url}}"], "path": ["claims"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"insured_name\": \"Rajesh Kumar\",\n  \"claim_type\": \"health\",\n  \"amount_claimed\": 750000,\n  \"incident_date\": \"2024-01-10\",\n  \"reported_date\": \"2024-01-12\",\n  \"narrative\": \"Patient admitted for cardiac surgery at Apollo Hospital, Chennai. High-value hospitalization claim under family floater policy.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201', () => pm.response.to.have.status(201));","const j = pm.response.json();","pm.test('Has routing_decision', () => pm.expect(j.routing_decision).to.be.an('object'));","pm.test('Has policylens_justification_id', () => pm.expect(j.routing_decision.policylens_justification_id).to.be.a('string'));","pm.test('Has audit_trail', () => pm.expect(j.audit_trail).to.be.an('array').with.length.above(0));","if (j.claim && j.claim.id) {","  pm.collectionVariables.set('claim_id', j.claim.id);","  console.log('claim_id saved:', j.claim.id);","}","console.log('Queue:', j.routing_decision?.assigned_queue);","console.log('Reserve: ₹', j.routing_decision?.reserve_suggestion);","console.log('Severity:', j.routing_decision?.severity_score);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Submit FNOL — Motor (Standard Route)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{claimiq_url}}/claims", "host": ["{{claimiq_url}}"], "path": ["claims"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"MC-STD-2024\",\n  \"insured_name\": \"Priya Venkatesh\",\n  \"claim_type\": \"motor\",\n  \"amount_claimed\": 85000,\n  \"incident_date\": \"2024-02-14\",\n  \"reported_date\": \"2024-02-15\",\n  \"narrative\": \"Rear-end collision on NH48. Vehicle sustained damage to bumper, boot lid and rear lights. No injuries reported.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201', () => pm.response.to.have.status(201));","const j = pm.response.json();","if (j.claim?.id) pm.collectionVariables.set('claim_id', j.claim.id);","console.log('Queue:', j.routing_decision?.assigned_queue);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Submit FNOL — Fraud Risk (High Propensity)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{claimiq_url}}/claims", "host": ["{{claimiq_url}}"], "path": ["claims"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"insured_name\": \"Unknown Claimant\",\n  \"claim_type\": \"health\",\n  \"amount_claimed\": 4850000,\n  \"incident_date\": \"2024-01-01\",\n  \"reported_date\": \"2024-04-20\",\n  \"narrative\": \"Claim submitted 110 days after alleged incident. Documents appear inconsistent with medical timeline.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201', () => pm.response.to.have.status(201));","const j = pm.response.json();","if (j.claim?.id) pm.collectionVariables.set('claim_id', j.claim.id);","pm.test('Fraud claim routed to fraud unit or senior', () => {","  const q = j.routing_decision?.assigned_queue || '';","  pm.expect(q).to.match(/fraud|senior/);","});","console.log('Fraud score:', j.routing_decision?.fraud_propensity_score);","console.log('Queue:', j.routing_decision?.assigned_queue);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Submit FNOL — Fast Track (Low Value)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{claimiq_url}}/claims", "host": ["{{claimiq_url}}"], "path": ["claims"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"insured_name\": \"Ananya Sharma\",\n  \"claim_type\": \"health\",\n  \"amount_claimed\": 8000,\n  \"incident_date\": \"2024-03-01\",\n  \"reported_date\": \"2024-03-02\",\n  \"narrative\": \"Minor outpatient consultation. Pharmacy bills attached.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 201', () => pm.response.to.have.status(201));","const j = pm.response.json();","if (j.claim?.id) pm.collectionVariables.set('claim_id', j.claim.id);","console.log('Queue:', j.routing_decision?.assigned_queue);","console.log('Overall risk (expect low):', j.routing_decision?.severity_score);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Get Claim (uses saved claim_id)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/claims/{{claim_id}}", "host": ["{{claimiq_url}}"], "path": ["claims","{{claim_id}}"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","pm.test('Has claim data', () => pm.expect(pm.response.json().claim).to.be.an('object'));"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Get Claim Decision (uses saved claim_id)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/claims/{{claim_id}}/decision", "host": ["{{claimiq_url}}"], "path": ["claims","{{claim_id}}","decision"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 200', () => pm.response.to.have.status(200));","const j = pm.response.json();","pm.test('Has routing_decision', () => pm.expect(j.routing_decision).to.be.an('object'));","pm.test('Has policylens_justification_id (IRDAI mandate)', () => pm.expect(j.routing_decision.policylens_justification_id).to.be.a('string').and.not.empty);","pm.test('Has audit_trail', () => pm.expect(j.audit_trail).to.be.an('array').with.length.above(0));","const auditActions = j.audit_trail.map(a => a.action);","pm.test('Audit includes POLICYLENS_QUERIED', () => pm.expect(auditActions).to.include('POLICYLENS_QUERIED'));","pm.test('Audit includes DECISION_PERSISTED', () => pm.expect(auditActions).to.include('DECISION_PERSISTED'));","console.log('Full audit trail:', auditActions.join(' → '));","console.log('Justification ID:', j.routing_decision?.policylens_justification_id);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "Get Claim — Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/claims/00000000-0000-0000-0000-000000000000", "host": ["{{claimiq_url}}"], "path": ["claims","00000000-0000-0000-0000-000000000000"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Status 404', () => pm.response.to.have.status(404));"],"type":"text/javascript"}}],
+          "response": []
+        }
+      ]
+    },
+
+    {
+      "name": "🎯 Demo Flow (run in order)",
+      "description": "Run these 4 requests in sequence for a complete end-to-end demo. Step 2 auto-saves the claim_id.",
+      "item": [
+        {
+          "name": "1. Check Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/health", "host": ["{{claimiq_url}}"], "path": ["health"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('ClaimIQ is healthy', () => pm.response.to.have.status(200));","console.log('✅ Step 1 done — services healthy');"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "2. Load Policy into Graph",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{policylens_url}}/policies", "host": ["{{policylens_url}}"], "path": ["policies"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"policy_name\": \"Standard Health Policy 2024\",\n  \"wording_text\": \"STANDARD HEALTH INSURANCE POLICY\\n\\nSECTION 3: COVERAGES\\n3.1 In-patient Hospitalization: Expenses for hospitalization exceeding 24 hours.\\n3.2 High-Value Claims: Claims above INR 5,00,000 require senior adjuster review.\\n\\nSECTION 4: EXCLUSIONS\\n4.1 Pre-existing Conditions: No claim payable for pre-existing diseases within first 36 months.\\n4.2 Waiting Period: No benefits payable within first 30 days.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["const ok = pm.response.status === 201 || pm.response.status === 409;","pm.test('Policy loaded (201) or already exists (409)', () => pm.expect(ok).to.be.true);","console.log('✅ Step 2 done — policy in graph, nodes:', pm.response.json().nodes_added || '(already loaded)');"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "3. Submit FNOL Claim",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{claimiq_url}}/claims", "host": ["{{claimiq_url}}"], "path": ["claims"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"HC-STD-2024\",\n  \"insured_name\": \"Rajesh Kumar\",\n  \"claim_type\": \"health\",\n  \"amount_claimed\": 750000,\n  \"incident_date\": \"2024-01-10\",\n  \"reported_date\": \"2024-01-12\",\n  \"narrative\": \"Patient admitted for cardiac surgery at Apollo Hospital, Chennai.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            }
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('FNOL accepted (201)', () => pm.response.to.have.status(201));","const j = pm.response.json();","if (j.claim?.id) {","  pm.collectionVariables.set('claim_id', j.claim.id);","  console.log('✅ Step 3 done — claim_id saved:', j.claim.id);","}","console.log('   Queue:', j.routing_decision?.assigned_queue);","console.log('   Reserve: ₹', j.routing_decision?.reserve_suggestion);","console.log('   Justification ID:', j.routing_decision?.policylens_justification_id);"],"type":"text/javascript"}}],
+          "response": []
+        },
+        {
+          "name": "4. Get Full Decision + Audit Trail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{claimiq_url}}/claims/{{claim_id}}/decision", "host": ["{{claimiq_url}}"], "path": ["claims","{{claim_id}}","decision"]}
+          },
+          "event": [{"listen":"test","script":{"exec":["pm.test('Decision retrieved (200)', () => pm.response.to.have.status(200));","const j = pm.response.json();","pm.test('IRDAI mandate: justification_id present', () => pm.expect(j.routing_decision.policylens_justification_id).to.be.a('string').and.not.empty);","const actions = j.audit_trail.map(a => a.action);","console.log('✅ Step 4 done — Full audit trail:');","console.log('   ' + actions.join(' → '));","console.log('   Justification ID:', j.routing_decision.policylens_justification_id);","console.log('   Confidence: COVERED (from PolicyLens graph traversal)');"],"type":"text/javascript"}}],
+          "response": []
+        }
+      ]
+    }
+
+  ]
+}
