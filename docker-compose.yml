@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: claimiq
+      POSTGRES_PASSWORD: claimiq_dev
+      POSTGRES_DB: claimiq
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claimiq"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  claimiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn src.claimiq.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://claimiq:claimiq_dev@postgres:5432/claimiq
+      REDIS_URL: redis://redis:6379/0
+      POLICYLENS_URL: http://policylens:8001
+      SECRET_KEY: dev-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+
+  policylens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn src.policylens.main:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://claimiq:claimiq_dev@postgres:5432/claimiq
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: rq worker --url redis://redis:6379/0 fnol-intake
+    environment:
+      DATABASE_URL: postgresql+asyncpg://claimiq:claimiq_dev@postgres:5432/claimiq
+      REDIS_URL: redis://redis:6379/0
+      POLICYLENS_URL: http://policylens:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+
+volumes:
+  postgres_data:

@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claim-intelligence-platform"
+version = "0.1.0"
+description = "India-native claims intelligence platform for mid-market insurers (ClaimIQ + PolicyLens + VerdictLens)"
+requires-python = ">=3.11"
+dependencies = [
+    # API
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+    # Data validation
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.0",
+    # Database
+    "sqlalchemy>=2.0.0",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.0",
+    "psycopg2-binary>=2.9.0",
+    # ML
+    "scikit-learn>=1.4.0",
+    "xgboost>=2.0.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    # NLP / graph
+    "spacy>=3.7.0",
+    "networkx>=3.3",
+    # Queue
+    "rq>=1.16.0",
+    "redis>=5.0.0",
+    # Utilities
+    "python-multipart>=0.0.9",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-dotenv>=1.0.0",
+    "structlog>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "httpx>=0.27.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

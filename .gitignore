@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+.env
+
+# Serialised ML models (regenerated automatically on first run)
+src/claimiq/scoring/models/*.pkl
+
+# Graph persistence file (populated at runtime)
+policylens_graph.json
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/

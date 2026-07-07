@@ -1,0 +1,57 @@
+[
+  {
+    "policy_id": "HC-2024-001",
+    "insured_name": "Priya Sharma",
+    "claim_type": "health",
+    "amount_claimed": 250000,
+    "incident_date": "2024-03-01",
+    "reported_date": "2024-03-03",
+    "narrative": "Hospitalization for surgery at Apollo Hospital, Chennai. Pre-authorization obtained.",
+    "language": "en",
+    "metadata": {"hospital": "Apollo Chennai", "diagnosis": "appendectomy"}
+  },
+  {
+    "policy_id": "MV-2024-042",
+    "insured_name": "Rajesh Kumar",
+    "claim_type": "motor",
+    "amount_claimed": 85000,
+    "incident_date": "2024-06-15",
+    "reported_date": "2024-06-16",
+    "narrative": "Third-party collision at NH-44 near Nagpur. Police FIR filed.",
+    "language": "en",
+    "metadata": {"vehicle_reg": "MH31AB1234", "fir_number": "2024/0612"}
+  },
+  {
+    "policy_id": "PR-2023-007",
+    "insured_name": "Suresh Iyer",
+    "claim_type": "property",
+    "amount_claimed": 1200000,
+    "incident_date": "2024-07-01",
+    "reported_date": "2024-07-03",
+    "narrative": "Flood damage to commercial property in Chennai during monsoon. Inventory and building damaged.",
+    "language": "en",
+    "metadata": {"property_address": "Industrial Area, Ambattur, Chennai"}
+  },
+  {
+    "policy_id": "HC-2024-099",
+    "insured_name": "Anita Patel",
+    "claim_type": "health",
+    "amount_claimed": 15000,
+    "incident_date": "2024-04-10",
+    "reported_date": "2024-04-11",
+    "narrative": "OPD consultation and pharmacy expenses for fever treatment.",
+    "language": "en",
+    "metadata": {}
+  },
+  {
+    "policy_id": "MV-2024-111",
+    "insured_name": "Mohammed Farouk",
+    "claim_type": "motor",
+    "amount_claimed": 620000,
+    "incident_date": "2024-01-05",
+    "reported_date": "2024-03-20",
+    "narrative": "Total loss claim for vehicle. Reported 75 days after incident.",
+    "language": "en",
+    "metadata": {"vehicle_reg": "TN09XY5678", "late_reason": "owner hospitalized"}
+  }
+]
