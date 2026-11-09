@@ -3,9 +3,9 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "claim-intelligence-platform"
-version = "0.1.0"
-description = "India-native claims intelligence platform for mid-market insurers (ClaimIQ + PolicyLens + VerdictLens)"
+name = "claimsaathi"
+version = "1.0.0"
+description = "ClaimSaathi: India-native claims intelligence on Google AI (Gemini, Gemini Live, Nano Banana, Gemma) and Google Cloud"
 requires-python = ">=3.11"
 dependencies = [
     # API
@@ -37,6 +37,10 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-dotenv>=1.0.0",
     "structlog>=24.1.0",
+    "greenlet>=3.0.0",
+    # Google AI + Google Cloud
+    "google-genai>=3.0.0",
+    "google-cloud-firestore>=2.16.0",
 ]
 
 [project.optional-dependencies]

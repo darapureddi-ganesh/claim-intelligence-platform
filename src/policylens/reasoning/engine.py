@@ -155,6 +155,11 @@ class RuleBasedReasoningEngine:
             # Waiting period exclusion
             elif "waiting-period" in node_tags and facts.get("within_waiting_period"):
                 matches.append(node)
+            # Intoxication exclusion (motor) — fact must come with evidence from intake
+            elif (
+                "alcohol" in node_tags or "alcohol" in node.get("text", "").lower()
+            ) and facts.get("alcohol_or_drugs_involved"):
+                matches.append(node)
         return matches
 
     def _determine_confidence(

@@ -30,7 +30,7 @@ services:
   claimiq:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     command: uvicorn src.claimiq.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
@@ -51,7 +51,7 @@ services:
   policylens:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     command: uvicorn src.policylens.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
       - "8001:8001"
@@ -69,7 +69,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     command: rq worker --url redis://redis:6379/0 fnol-intake
     environment:
       DATABASE_URL: postgresql+asyncpg://claimiq:claimiq_dev@postgres:5432/claimiq
@@ -83,6 +83,17 @@ services:
     volumes:
       - .:/app
     working_dir: /app
+
+  # ClaimSaathi: the single Google AI app that is deployed to Cloud Run
+  claimsaathi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
 
 volumes:
   postgres_data:

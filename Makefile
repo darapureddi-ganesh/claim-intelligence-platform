@@ -1,4 +1,16 @@
-.PHONY: install dev test lint migrate seed
+.PHONY: install dev run test lint migrate seed deploy redeploy models
+
+run:  ## ClaimSaathi Cloud Run app locally (http://localhost:8080)
+	uvicorn src.platform.app:app --reload --port 8080
+
+models:  ## List Google AI models your key/project can call
+	python scripts/list_models.py
+
+deploy:  ## First-time Google Cloud setup + deploy (needs PROJECT_ID, GEMINI_API_KEY)
+	./deploy/setup.sh
+
+redeploy:
+	gcloud builds submit --config cloudbuild.yaml --substitutions=_REGION=$${REGION:-asia-south1}
 
 install:
 	pip install -e ".[dev]"

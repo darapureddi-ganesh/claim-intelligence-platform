@@ -134,3 +134,24 @@ def test_traced_clauses_have_clause_refs(engine):
     if result.traced_clauses:
         for clause in result.traced_clauses:
             assert clause.node_id
+
+
+def test_alcohol_exclusion_applies_only_with_fact():
+    from src.core.domain.ports import JustificationQuery
+    from src.policylens.graph.store import NetworkXGraphStore
+    from src.policylens.loaders.policy_loader import PolicyLoader
+    from src.policylens.reasoning.engine import RuleBasedReasoningEngine
+    import uuid
+
+    graph = NetworkXGraphStore(persist_path=None)
+    PolicyLoader(graph=graph).load("HC", "x", open("tests/fixtures/sample_policy.txt").read())
+    engine = RuleBasedReasoningEngine(graph)
+
+    def ask(facts):
+        return engine.justify(JustificationQuery(
+            claim_id=uuid.uuid4(), claim_type=ClaimType.MOTOR,
+            decision_type=DecisionType.ROUTE_TO_STANDARD,
+            relevant_facts={"claim_type": "motor", "amount_claimed": "50000", **facts}))
+
+    assert ask({"alcohol_or_drugs_involved": True}).confidence == "EXCLUDED"
+    assert ask({}).confidence != "EXCLUDED"

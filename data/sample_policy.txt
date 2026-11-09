@@ -1,0 +1,63 @@
+STANDARD HEALTH INSURANCE POLICY WORDING
+Policy Reference: HC-STD-2024
+Insurer: Pilot General Insurance Co. Ltd.
+IRDAI Registration No: XXXX
+
+1. DEFINITIONS
+1.1 "Insured" means the person(s) named in the Schedule.
+1.2 "Sum Insured" means the amount shown in the Schedule, being the maximum liability of the Insurer.
+1.3 "Hospitalization" means admission to a Hospital for a minimum period of 24 consecutive hours.
+1.4 "Pre-existing Disease" means any condition, ailment or injury for which the Insured had signs, symptoms, was diagnosed, or received medical advice/treatment within 48 months prior to the inception of this policy.
+
+2. COVERAGE
+2.1 The Insurer agrees to pay for hospitalization expenses including room charges, nursing charges, surgeon fees, and pharmacy costs incurred by the Insured during the Policy Period.
+2.2 Emergency medical treatment is covered up to the Sum Insured.
+2.3 Day care procedures listed in Annexure A are covered subject to the limits specified therein.
+2.4 Maternity benefits are payable after 9 months of continuous coverage, up to INR 50,000 per policy year.
+
+3. EXCLUSIONS
+3.1 This policy does not cover any Pre-existing Disease for the first 48 months of continuous coverage.
+3.2 Cosmetic or aesthetic treatment is excluded unless necessitated by an Accident.
+3.3 Treatment for self-inflicted injuries or attempted suicide is excluded.
+3.4 OPD (outpatient) consultations are excluded unless specifically endorsed.
+3.5 Waiting period: Claims arising within 30 days of policy inception are excluded except for Accidents.
+
+4. CONDITIONS
+4.1 All claims must be intimated to the Insurer within 7 days of hospitalization or event giving rise to the claim.
+4.2 Pre-authorization is required for planned hospitalization exceeding INR 50,000.
+4.3 All original bills, receipts, and discharge summaries must be submitted within 30 days of discharge.
+4.4 Provided that the Insurer reserves the right to appoint an Independent Medical Examiner whose findings shall be final.
+
+5. HIGH-VALUE CLAIMS
+5.1 Claims exceeding INR 5,00,000 must be reviewed by a Senior Claims Adjuster.
+5.2 Claims with a complexity score above threshold shall be referred to the Senior Adjuster queue for detailed assessment.
+5.3 Claims flagged for potential fraud investigation shall be routed to the Fraud Investigation Unit prior to settlement.
+
+6. ENDORSEMENTS
+6.1 Critical Illness Rider (if applicable): Pays a lump sum on diagnosis of listed critical illnesses including cancer, stroke, kidney failure. Waiting period: 90 days.
+6.2 Hospital Daily Cash Benefit: Pays INR 500 per day of hospitalization up to 30 days per policy year.
+
+MOTOR INSURANCE SECTION (Third Party + Own Damage)
+
+7. MOTOR COVERAGE
+7.1 Third party liability is covered as per the Motor Vehicles Act, 1988.
+7.2 Own damage to the insured vehicle is covered subject to the Insured Declared Value (IDV).
+7.3 Total loss is declared when repair cost exceeds 75% of IDV.
+7.4 Claims arising from collision, accident, or natural calamity are covered.
+
+8. MOTOR EXCLUSIONS
+8.1 Damage due to driving under influence of alcohol or drugs is excluded.
+8.2 Depreciation on consumable parts is excluded.
+8.3 Mechanical or electrical breakdown not caused by accident is excluded.
+
+PROPERTY INSURANCE SECTION
+
+9. PROPERTY COVERAGE
+9.1 Loss or damage to building and contents caused by fire, lightning, explosion, flood, and allied perils is covered.
+9.2 Theft and burglary are covered subject to first loss deductible.
+9.3 Business interruption losses may be covered under separate endorsement.
+
+10. PROPERTY EXCLUSIONS
+10.1 War, nuclear, and terrorism risks are excluded.
+10.2 Gradual deterioration, wear and tear are excluded.
+10.3 Damage caused by earth movement is excluded unless specifically endorsed.

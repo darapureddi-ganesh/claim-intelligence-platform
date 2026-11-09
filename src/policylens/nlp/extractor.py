@@ -25,7 +25,7 @@ _ENDORSEMENT_KEYWORDS = {"endorsement", "rider", "addendum", "amendment"}
 
 # Claim-type tags inferred from keywords in the clause text
 _CLAIM_TYPE_TAG_MAP = {
-    "motor": {"vehicle", "accident", "car", "bike", "motor", "third party", "collision"},
+    "motor": {"vehicle", "accident", "car", "bike", "motor", "third party", "collision", "driving", "idv"},
     "health": {"hospitalisation", "hospitalization", "illness", "surgery", "medical", "treatment", "doctor", "icu", "discharge"},
     "property": {"property", "building", "fire", "flood", "damage", "burglary", "theft"},
     "life": {"death", "demise", "nominee", "life assured", "survival"},
@@ -116,6 +116,9 @@ class PolicyClauseExtractor:
         # Waiting period
         if re.search(r"waiting period|wait\s+\d+\s+day", lower):
             tags.append("waiting-period")
+        # Intoxication
+        if "alcohol" in lower or "intoxicat" in lower:
+            tags.append("alcohol")
         # Pre-existing
         if "pre-existing" in lower or "pre existing" in lower:
             tags.append("pre-existing")

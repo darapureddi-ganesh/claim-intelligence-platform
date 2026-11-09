@@ -1,0 +1,12 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+.env
+src/claimiq/scoring/models/*.pkl
+policylens_graph.json
+demo/

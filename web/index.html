@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClaimSaathi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f8fb;--surface:#ffffff;--surface2:#f1f3f8;--border:#e2e6ef;--text:#14192b;--muted:#5d6680;
+  --accent:#1a73e8;--accent-soft:#e8f0fe;--ok:#188038;--ok-soft:#e6f4ea;--warn:#b06000;--warn-soft:#fef7e0;
+  --bad:#c5221f;--bad-soft:#fce8e6;--violet:#7c4dff;--violet-soft:#efe9ff;--radius:14px;
+  --shadow:0 1px 2px rgba(20,25,43,.06),0 4px 16px rgba(20,25,43,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1218;--surface:#171b24;--surface2:#1e2330;--border:#2a3040;--text:#e8eaf2;--muted:#9aa3b8;
+  --accent:#8ab4f8;--accent-soft:#1c2a44;--ok:#81c995;--ok-soft:#16301f;--warn:#fdd663;--warn-soft:#3a2f10;
+  --bad:#f28b82;--bad-soft:#3b1a19;--violet:#b39dff;--violet-soft:#2a2245;--shadow:none}}
+:root[data-theme="dark"]{
+  --bg:#0f1218;--surface:#171b24;--surface2:#1e2330;--border:#2a3040;--text:#e8eaf2;--muted:#9aa3b8;
+  --accent:#8ab4f8;--accent-soft:#1c2a44;--ok:#81c995;--ok-soft:#16301f;--warn:#fdd663;--warn-soft:#3a2f10;
+  --bad:#f28b82;--bad-soft:#3b1a19;--violet:#b39dff;--violet-soft:#2a2245;--shadow:none}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.55 Inter,"Noto Sans Devanagari","Noto Sans Telugu","Noto Sans Tamil",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--border)}
+.bar{max-width:1120px;margin:0 auto;padding:12px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.logo{display:flex;gap:10px;align-items:center;font-weight:700;font-size:17px}
+.logo svg{flex:none}
+.status{margin-left:auto;font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}.dot.on{background:var(--ok)}.dot.off{background:var(--warn)}
+nav{max-width:1120px;margin:0 auto;padding:0 8px;display:flex;gap:2px;overflow-x:auto}
+nav button{border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:14px;padding:10px 12px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.active{color:var(--accent);border-color:var(--accent)}
+main{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
+.tab{display:none}.tab.active{display:block}
+h2{font-size:20px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0 0 12px;font-size:15px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}
+textarea,input[type=text],select{width:100%;font:inherit;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+textarea{min-height:130px;resize:vertical}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-weight:600;font-size:14px;padding:9px 14px;border-radius:999px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0f1218}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#0f1218}}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.rec{background:var(--bad);border-color:var(--bad);color:#fff}
+.drop{border:1.5px dashed var(--border);border-radius:12px;padding:14px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;background:var(--surface2)}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip button{border:0;background:none;color:var(--muted);cursor:pointer;padding:0;font-size:14px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}.p-acc{background:var(--accent-soft);color:var(--accent)}
+.p-vio{background:var(--violet-soft);color:var(--violet)}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;font-size:14px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere}
+.scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.score{background:var(--surface2);border-radius:10px;padding:10px}
+.score b{display:block;font-size:20px}.score span{font-size:12px;color:var(--muted)}
+.meter{height:5px;border-radius:3px;background:var(--border);margin-top:6px;overflow:hidden}.meter i{display:block;height:100%;background:var(--accent)}
+.clause{border-left:3px solid var(--accent);background:var(--surface2);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-size:14px}
+.clause.exclusion{border-color:var(--bad)}.clause.condition{border-color:var(--warn)}
+.clause small{color:var(--muted)}
+.timeline{list-style:none;margin:0;padding:0;font-size:13.5px}
+.timeline li{display:grid;grid-template-columns:86px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.timeline time{color:var(--muted);font-variant-numeric:tabular-nums}
+.timeline code{font-size:12px;color:var(--muted)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;margin:6px 0 18px}
+.flow span{padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+.flow em{color:var(--muted);font-style:normal}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--surface2)}
+.scroll{overflow-x:auto}
+.letter{background:var(--surface2);border-radius:10px;padding:14px 16px;font-size:14.5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.letter .quote{display:block;border-left:3px solid var(--accent);padding-left:10px;margin:2px 0}
+.empty{color:var(--muted);font-size:14px;padding:18px 0;text-align:center}
+.err{color:var(--bad);font-size:14px;margin-top:10px;white-space:pre-wrap}
+.transcript{height:320px;overflow-y:auto;background:var(--surface2);border-radius:10px;padding:12px;font-size:14.5px}
+.msg{margin:6px 0;max-width:88%;padding:8px 12px;border-radius:12px}
+.msg.user{background:var(--accent-soft);margin-left:auto}
+.msg.model{background:var(--surface);border:1px solid var(--border)}
+.orb{width:84px;height:84px;border-radius:50%;margin:8px auto 14px;background:radial-gradient(circle at 35% 35%,var(--accent),var(--violet));opacity:.35;transition:transform .12s,opacity .3s}
+.orb.live{opacity:1}
+img.annot{max-width:100%;border-radius:10px;border:1px solid var(--border);margin-top:10px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--accent)"/><path d="M8 14.5l4 4 8-9" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      ClaimSaathi
+    </div>
+    <div class="status"><span class="dot" id="aiDot"></span><span id="aiStatus">Checking Google AI…</span></div>
+  </div>
+  <nav id="nav">
+    <button data-tab="file" class="active">File a claim</button>
+    <button data-tab="live">Call Saathi (voice)</button>
+    <button data-tab="claims">Claims desk</button>
+    <button data-tab="policies">Policies</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ─────────────── File a claim ─────────────── -->
+  <section class="tab active" id="tab-file">
+    <h2>File a claim in any language</h2>
+    <p class="sub">Type or speak in Hindi, Telugu, Tamil or any Indian language, and attach photos, bills or a voice note. Gemini reads them; the rule-based policy graph decides.</p>
+    <div class="flow"><span>Gemini reads</span><em>→</em><span>Gemma redacts PII</span><em>→</em><span>ML scores</span><em>→</em><span>Rules route</span><em>→</em><span>Policy graph justifies (no LLM)</span><em>→</em><span>Gemini explains</span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>What happened?</h3>
+        <textarea id="fnolText" placeholder="e.g. मेरी कार का कल शाम हैदराबाद में एक्सीडेंट हुआ। पॉलिसी नंबर HC-STD-2024, नाम रवि कुमार। रिपेयर का अनुमान ₹85,000 है।"></textarea>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn" id="sampleHi">Hindi sample</button>
+          <button class="btn" id="sampleTe">Telugu sample</button>
+          <button class="btn" id="sampleEn">English health sample</button>
+        </div>
+        <label>Photos, bills, PDFs, voice notes</label>
+        <div class="drop" id="drop">Drop files here or click to choose<br><span class="muted">images · PDF · audio · up to 18 MB total</span></div>
+        <input type="file" id="fileInput" multiple accept="image/*,application/pdf,audio/*,text/plain" hidden>
+        <div class="files" id="fileList"></div>
+        <div class="btns">
+          <button class="btn" id="recBtn">● Record voice note</button>
+          <button class="btn" id="extractBtn">Read with Gemini</button>
+          <button class="btn primary" id="intakeBtn">Read and file claim</button>
+        </div>
+        <div class="err" id="fileErr"></div>
+      </div>
+      <div class="card" id="extractCard">
+        <h3>What Gemini found</h3>
+        <div class="empty">Facts, translations and evidence flags will appear here.</div>
+      </div>
+    </div>
+    <div id="fileResult" style="margin-top:16px"></div>
+  </section>
+
+  <!-- ─────────────── Live voice ─────────────── -->
+  <section class="tab" id="tab-live">
+    <h2>Call Saathi</h2>
+    <p class="sub">A real-time voice agent on Gemini Live. Speak naturally in your language; Saathi asks for the details, reads them back, and files the claim through the same audited pipeline.</p>
+    <div class="grid">
+      <div class="card" style="text-align:center">
+        <div class="orb" id="orb"></div>
+        <div class="btns" style="justify-content:center">
+          <button class="btn primary" id="callBtn">Start call</button>
+        </div>
+        <p class="muted" id="liveState">Uses your microphone. Audio streams to Gemini Live through this server; no API key is exposed to the browser.</p>
+        <label style="text-align:left">Or type to Saathi</label>
+        <div class="row"><input type="text" id="liveText" placeholder="Type a message during the call" style="flex:1"><button class="btn" id="liveSend">Send</button></div>
+        <div id="liveClaim" style="text-align:left;margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <h3>Live transcript</h3>
+        <div class="transcript" id="transcript"><div class="empty">The conversation appears here.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────── Claims desk ─────────────── -->
+  <section class="tab" id="tab-claims">
+    <div class="row" style="justify-content:space-between"><div><h2>Claims desk</h2><p class="sub">Every decision carries a policy-graph justification and a full audit trail.</p></div><button class="btn" id="refreshClaims">Refresh</button></div>
+    <div class="card scroll"><table><thead><tr><th>Claimant</th><th>Type</th><th>Amount</th><th>Language</th><th>Channel</th><th>Queue</th></tr></thead><tbody id="claimRows"></tbody></table></div>
+    <div id="claimDetail" style="margin-top:16px"></div>
+  </section>
+
+  <!-- ─────────────── Policies ─────────────── -->
+  <section class="tab" id="tab-policies">
+    <h2>Policy knowledge graph</h2>
+    <p class="sub">Gemini turns a policy wording (text or scanned PDF) into graph clauses. Any clause that is not a verbatim copy of the source is rejected, so every justification still traces to real wording.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Load a policy</h3>
+        <label>Policy ID</label><input type="text" id="polId" placeholder="e.g. MOTOR-PKG-2026">
+        <label>Policy name</label><input type="text" id="polName" placeholder="e.g. Private Car Package Policy">
+        <label>Wording (paste text) or upload a PDF</label>
+        <textarea id="polText" placeholder="Paste the policy wording…"></textarea>
+        <input type="file" id="polFile" accept="application/pdf,image/*,text/plain" style="margin-top:8px">
+        <label>Clause extractor</label>
+        <select id="polExtractor"><option value="gemini">Gemini (grounded, verbatim-checked)</option><option value="rules">Keyword rules (no AI)</option></select>
+        <div class="btns"><button class="btn primary" id="polLoad">Load into graph</button></div>
+        <div class="err" id="polErr"></div>
+        <div id="polResult"></div>
+      </div>
+      <div class="card">
+        <h3>Loaded policies</h3>
+        <div id="polList"></div>
+        <div id="polClauses"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// Minimal, safe Markdown for letters: escape first, then **bold**, _italic_, > quotes.
+const md = src => esc(src).split("\n").map(line => {
+  const q = line.startsWith("&gt; ");
+  let h = (q ? line.slice(5) : line).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|\s)_(.+?)_(?=\s|$)/g, "$1<i>$2</i>");
+  return q ? `<span class="quote">${h}</span>` : h;
+}).join("\n");
+const inr = v => "₹" + Number(v || 0).toLocaleString("en-IN");
+let CONFIG = {languages:{en:"English"}};
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail ? (typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)) : r.statusText);
+  return body;
+}
+function busy(btn, on, label) {
+  if (on) { btn.dataset.label = btn.innerHTML; btn.innerHTML = `<span class="spinner"></span> ${label || "Working…"}`; btn.disabled = true; }
+  else { btn.innerHTML = btn.dataset.label; btn.disabled = false; }
+}
+
+// ── tabs ──
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#nav button").forEach(x => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + b.dataset.tab));
+  try { localStorage.setItem("tab", b.dataset.tab); } catch {}
+  if (b.dataset.tab === "claims") loadClaims();
+  if (b.dataset.tab === "policies") loadPolicies();
+});
+try { const t = localStorage.getItem("tab"); if (t) document.querySelector(`#nav [data-tab="${t}"]`)?.click(); } catch {}
+
+// ── config ──
+api("/api/config").then(c => {
+  CONFIG = c;
+  $("#aiDot").className = "dot " + (c.configured ? "on" : "off");
+  $("#aiStatus").textContent = c.configured
+    ? `${c.backend === "vertex-ai" ? "Vertex AI" : "Gemini API"} · ${c.models.gemini}`
+    : "Google AI not configured — rules-only mode";
+}).catch(() => { $("#aiStatus").textContent = "Server unreachable"; });
+
+// ── samples ──
+const SAMPLES = {
+  hi: "नमस्ते, मेरा नाम रवि कुमार है। पॉलिसी नंबर HC-STD-2024 है। कल शाम (8 नवंबर) हैदराबाद में गाचीबोवली के पास मेरी कार को पीछे से एक ट्रक ने टक्कर मार दी। पीछे का बम्पर और डिक्की पूरी तरह टूट गई है। गैराज ने रिपेयर का अनुमान ₹85,000 बताया है। मेरा फ़ोन 9876543210 है।",
+  te: "నమస్కారం, నా పేరు లక్ష్మి రెడ్డి. పాలసీ నంబర్ HC-STD-2024. నవంబర్ 2న నాకు అపెండిసైటిస్ వచ్చి విజయవాడలోని ఆసుపత్రిలో చేరాను, సర్జరీ జరిగింది. నవంబర్ 5న డిశ్చార్జ్ అయ్యాను. మొత్తం బిల్లు ₹1,85,000.",
+  en: "Policy HC-STD-2024. Insured: Priya Sharma. Admitted to Apollo Hospital, Chennai on 1 Nov 2026 for emergency gall bladder surgery, discharged 4 Nov. Final bill INR 6,40,000. She has had diabetes for 6 years (diagnosed 2020).",
+};
+$("#sampleHi").onclick = () => $("#fnolText").value = SAMPLES.hi;
+$("#sampleTe").onclick = () => $("#fnolText").value = SAMPLES.te;
+$("#sampleEn").onclick = () => $("#fnolText").value = SAMPLES.en;
+
+// ── files ──
+let FILES = [];
+function renderFiles() {
+  $("#fileList").innerHTML = FILES.map((f, i) => `<span class="chip">${esc(f.name)} <button data-i="${i}" aria-label="Remove">×</button></span>`).join("");
+  $("#fileList").querySelectorAll("button").forEach(b => b.onclick = () => { FILES.splice(+b.dataset.i, 1); renderFiles(); });
+}
+$("#drop").onclick = () => $("#fileInput").click();
+$("#fileInput").onchange = e => { FILES.push(...e.target.files); e.target.value = ""; renderFiles(); };
+$("#drop").ondragover = e => { e.preventDefault(); };
+$("#drop").ondrop = e => { e.preventDefault(); FILES.push(...e.dataTransfer.files); renderFiles(); };
+
+// voice note via MediaRecorder
+let rec = null;
+$("#recBtn").onclick = async () => {
+  if (rec) { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    const chunks = [];
+    rec = new MediaRecorder(stream);
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const type = (rec.mimeType || "audio/webm").split(";")[0];
+      FILES.push(new File(chunks, `voice-note.${type.split("/")[1] || "webm"}`, {type}));
+      renderFiles(); rec = null;
+      $("#recBtn").className = "btn"; $("#recBtn").textContent = "● Record voice note";
+    };
+    rec.start();
+    $("#recBtn").className = "btn rec"; $("#recBtn").textContent = "■ Stop recording";
+  } catch (e) { $("#fileErr").textContent = "Microphone unavailable: " + e.message; }
+};
+
+function formData() {
+  const fd = new FormData();
+  fd.append("text", $("#fnolText").value);
+  FILES.forEach(f => fd.append("files", f, f.name));
+  return fd;
+}
+$("#extractBtn").onclick = async e => {
+  $("#fileErr").textContent = ""; busy(e.target, true, "Reading…");
+  try { renderExtraction(await api("/api/intake/extract", {method: "POST", body: formData()})); }
+  catch (err) { $("#fileErr").textContent = err.message; }
+  finally { busy(e.target, false); }
+};
+$("#intakeBtn").onclick = async e => {
+  $("#fileErr").textContent = ""; busy(e.target, true, "Reading and filing…");
+  try {
+    const r = await api("/api/intake", {method: "POST", body: formData()});
+    renderExtraction(r);
+    $("#fileResult").innerHTML = r.submitted ? "" : `<div class="card"><b>Not filed yet.</b> Missing: ${esc(r.missing.join(", "))}. Add these and try again.</div>`;
+    if (r.submitted) renderDetail(r, $("#fileResult"));
+  } catch (err) { $("#fileErr").textContent = err.message; }
+  finally { busy(e.target, false); }
+};
+
+const LANG = c => CONFIG.languages?.[c] || c;
+function renderExtraction(r) {
+  const x = r.extraction, f = r.fnol;
+  const flags = (x.consistency_flags || []).map(fl =>
+    `<div class="clause ${fl.severity === "high" ? "exclusion" : "condition"}"><span class="pill ${fl.severity === "high" ? "p-bad" : fl.severity === "medium" ? "p-warn" : "p-acc"}">${esc(fl.severity)}</span> <b>${esc(fl.flag)}</b><br><small>${esc(fl.evidence)}</small></div>`).join("");
+  const docs = (x.documents || []).map(d => `<li>${esc(d.doc_type)} <span class="muted">(${esc(LANG(d.language))})</span> — ${esc(d.summary)}</li>`).join("");
+  const ev = (k, label) => x[k]?.value != null ? `<dt>${label}</dt><dd>${x[k].value ? "Yes" : "No"} <span class="muted">— “${esc(x[k].evidence)}”</span></dd>` : "";
+  $("#extractCard").innerHTML = `<h3>What Gemini found <span class="pill p-vio">${esc(LANG(x.detected_language))}</span></h3>
+    <dl class="kv">
+      <dt>Policy</dt><dd>${esc(f.policy_id)}</dd><dt>Insured</dt><dd>${esc(x.insured_name || "—")}</dd>
+      <dt>Type</dt><dd>${esc(f.claim_type)}</dd><dt>Amount</dt><dd>${inr(f.amount_claimed)}</dd>
+      <dt>Incident</dt><dd>${esc(f.incident_date)}${x.incident_location ? " · " + esc(x.incident_location) : ""}</dd>
+      ${ev("pre_existing_condition", "Pre-existing")}${ev("alcohol_or_drugs_involved", "Alcohol/drugs")}
+      ${x.damage?.damaged_parts?.length ? `<dt>Damage</dt><dd>${esc(x.damage.damaged_parts.join(", "))} (${Math.round(x.damage.visible_severity * 100)}%)</dd>` : ""}
+    </dl>
+    ${x.narrative_english ? `<label>English translation</label><div class="letter">${esc(x.narrative_english)}</div>` : ""}
+    ${docs ? `<label>Documents read</label><ul style="margin:0;padding-left:18px;font-size:14px">${docs}</ul>` : ""}
+    ${flags ? `<label>Evidence flags (rules escalate; humans decide)</label>${flags}` : ""}
+    ${r.missing?.length ? `<p class="muted">Still needed: ${esc(r.missing.join(", "))}</p>` : ""}`;
+}
+
+// ── claim detail ──
+const QUEUE = {"fast-track": ["Fast-track", "p-ok"], "standard": ["Standard", "p-acc"], "senior-adjuster": ["Senior adjuster", "p-warn"], "fraud-investigation": ["Investigation", "p-bad"]};
+const CONF = {COVERED: "p-ok", CONDITIONAL: "p-warn", EXCLUDED: "p-bad", UNCLEAR: "p-acc"};
+const qpill = q => q ? `<span class="pill ${(QUEUE[q] || [q, "p-acc"])[1]}">${esc((QUEUE[q] || [q])[0])}</span>` : "—";
+function renderDetail(d, el) {
+  const c = d.claim, rd = d.routing_decision, j = d.justification;
+  const sc = (v, l) => `<div class="score"><b>${Math.round(v * 100)}</b><span>${l}</span><div class="meter"><i style="width:${v * 100}%"></i></div></div>`;
+  const langs = Object.entries(CONFIG.languages || {en: "English"}).map(([k, v]) => `<option value="${k}" ${k === c.language ? "selected" : ""}>${esc(v)}</option>`).join("");
+  el.innerHTML = `<div class="grid">
+    <div class="card">
+      <h3>Decision ${qpill(rd?.assigned_queue)} ${j ? `<span class="pill ${CONF[j.confidence]}">${esc(j.confidence)}</span>` : ""}</h3>
+      <dl class="kv"><dt>Claim</dt><dd><code>${esc(c.id)}</code></dd><dt>Policy</dt><dd>${esc(c.policy_id)}</dd>
+      <dt>Claimant</dt><dd>${esc(c.insured_name || "—")}</dd><dt>Amount</dt><dd>${inr(c.amount_claimed)} · reserve ${inr(rd?.reserve_suggestion)}</dd>
+      <dt>Narrative</dt><dd>${esc(c.raw_fnol_text)} <span class="muted">(PII-redacted)</span></dd></dl>
+      ${rd ? `<div class="scores">${sc(rd.severity_score, "Severity")}${sc(rd.complexity_score, "Complexity")}${sc(rd.fraud_propensity_score, "Fraud signal")}</div>` : ""}
+      ${j ? `<label>Why — traced policy clauses (zero-LLM)</label><p style="margin:0 0 6px;font-size:14px">${esc(j.justification_text)}</p>
+        ${j.traced_clauses.map(t => `<div class="clause ${t.tags.includes("exclusion") ? "exclusion" : t.tags.includes("condition") ? "condition" : ""}"><small>${esc(t.clause_ref)}</small><br>${esc(t.text)}</div>`).join("")}` : ""}
+    </div>
+    <div class="card">
+      <h3>Letter to the policyholder</h3>
+      <div class="row"><select id="vLang" style="flex:1">${langs}</select><button class="btn primary" id="vBtn">Write letter</button></div>
+      <div id="vOut" style="margin-top:12px"><p class="muted">Gemini writes it in the claimant's language. A validator rejects any draft that changes the decision or cites a clause the graph did not trace.</p></div>
+      <h3 style="margin-top:20px">Damage photo (Nano Banana)</h3>
+      <div class="row"><input type="file" id="aFile" accept="image/*" style="flex:1;min-width:0"><button class="btn" id="aBtn">Annotate</button></div>
+      <div id="aOut"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Audit trail</h3><ul class="timeline">${d.audit_trail.map(a =>
+    `<li><time>${esc(a.timestamp.slice(11, 19))}</time><div><b>${esc(a.action)}</b> <code>${esc(a.actor)}</code>${a.source_clause_ref ? ` · <span class="pill p-acc">${esc(a.source_clause_ref)}</span>` : ""}</div></li>`).join("")}</ul></div>`;
+  el.querySelector("#vBtn").onclick = async e => {
+    busy(e.target, true, "Writing…");
+    try {
+      const v = await api(`/api/claims/${c.id}/verdict?language=${el.querySelector("#vLang").value}`, {method: "POST"});
+      el.querySelector("#vOut").innerHTML = `<div class="row" style="margin-bottom:8px"><span class="pill ${v.generator === "gemini" ? "p-vio" : "p-acc"}">${v.generator === "gemini" ? "Gemini · citations verified" : "Deterministic template"}</span>
+        ${v.validation_errors.length ? `<span class="muted">${esc(v.validation_errors.join("; "))}</span>` : ""}</div><div class="letter">${md(v.letter_markdown)}</div>`;
+    } catch (err) { el.querySelector("#vOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
+    finally { busy(e.target, false); }
+  };
+  el.querySelector("#aBtn").onclick = async e => {
+    const f = el.querySelector("#aFile").files[0]; if (!f) return;
+    const fd = new FormData(); fd.append("file", f); fd.append("claim_id", c.id);
+    busy(e.target, true, "Annotating…");
+    try {
+      const a = await api("/api/vision/annotate", {method: "POST", body: fd});
+      el.querySelector("#aOut").innerHTML = `${a.annotated_image ? `<img class="annot" src="${a.annotated_image}" alt="Annotated damage photo">` : ""}
+        <p class="muted">${esc(a.label)}<br>Original SHA-256: <code>${esc(a.original_sha256.slice(0, 16))}…</code></p>${a.notes ? `<div class="letter">${esc(a.notes)}</div>` : ""}`;
+    } catch (err) { el.querySelector("#aOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
+    finally { busy(e.target, false); }
+  };
+}
+
+async function loadClaims() {
+  const rows = await api("/api/claims").catch(() => []);
+  $("#claimRows").innerHTML = rows.length ? rows.map(r => `<tr class="click" data-id="${r.id}"><td>${esc(r.insured_name || "—")}<br><span class="muted">${esc(r.policy_id)}</span></td><td>${esc(r.claim_type)}</td><td>${inr(r.amount_claimed)}</td><td>${esc(LANG(r.language))}</td><td>${esc((r.channel || "api").replace("gemini-", ""))}</td><td>${qpill(r.queue)}</td></tr>`).join("")
+    : `<tr><td colspan="6" class="empty">No claims yet. File one from the first tab or call Saathi.</td></tr>`;
+  $("#claimRows").querySelectorAll("tr.click").forEach(tr => tr.onclick = async () => {
+    renderDetail(await api("/api/claims/" + tr.dataset.id), $("#claimDetail"));
+    $("#claimDetail").scrollIntoView({behavior: "smooth"});
+  });
+}
+$("#refreshClaims").onclick = loadClaims;
+
+// ── policies ──
+async function loadPolicies() {
+  const ps = await api("/api/policies").catch(() => []);
+  $("#polList").innerHTML = ps.map(p => `<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><div><b>${esc(p.policy_id)}</b><br><span class="muted">${esc(p.policy_name)} · ${p.nodes_added} clauses · ${esc(p.extractor)}</span></div><button class="btn" data-id="${esc(p.policy_id)}">View</button></div>`).join("") || `<div class="empty">No policies loaded.</div>`;
+  $("#polList").querySelectorAll("button").forEach(b => b.onclick = async () => {
+    const cl = await api(`/api/policies/${encodeURIComponent(b.dataset.id)}/clauses`);
+    $("#polClauses").innerHTML = `<label>${esc(b.dataset.id)} clauses</label>` + cl.map(n => `<div class="clause ${esc(n.node_type)}"><small>${esc(n.clause_ref)} · ${esc(n.node_type)} · ${esc(n.tags.join(", "))}</small><br>${esc(n.text)}</div>`).join("");
+  });
+}
+$("#polLoad").onclick = async e => {
+  $("#polErr").textContent = ""; $("#polResult").innerHTML = "";
+  const id = $("#polId").value.trim(), name = $("#polName").value.trim(), file = $("#polFile").files[0];
+  if (!id || !name) { $("#polErr").textContent = "Policy ID and name are required."; return; }
+  busy(e.target, true, "Extracting…");
+  try {
+    let r;
+    if (file) { const fd = new FormData(); fd.append("policy_id", id); fd.append("policy_name", name); fd.append("file", file); r = await api("/api/policies/upload", {method: "POST", body: fd}); }
+    else r = await api("/api/policies", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({policy_id: id, policy_name: name, wording_text: $("#polText").value, extractor: $("#polExtractor").value})});
+    $("#polResult").innerHTML = `<p><span class="pill p-ok">${r.nodes_added} clauses added</span> via ${esc(r.extractor)}</p>` +
+      (r.rejected_clauses.length ? `<p class="muted">Rejected by the verbatim check:</p>${r.rejected_clauses.map(x => `<div class="clause exclusion"><small>${esc(x.clause_ref)}</small> ${esc(x.reason)}</div>`).join("")}` : "");
+    loadPolicies();
+  } catch (err) { $("#polErr").textContent = err.message; }
+  finally { busy(e.target, false); }
+};
+
+// ── Gemini Live voice call ──
+let ws = null, micCtx = null, micStream = null, proc = null, playCtx = null, playHead = 0, sources = [];
+const tEl = $("#transcript");
+let lastRole = null, lastBubble = null;
+function say(role, text) {
+  if (tEl.querySelector(".empty")) tEl.innerHTML = "";
+  if (role !== lastRole || !lastBubble) { lastBubble = document.createElement("div"); lastBubble.className = "msg " + role; tEl.appendChild(lastBubble); lastRole = role; }
+  lastBubble.textContent += text; tEl.scrollTop = tEl.scrollHeight;
+}
+function b64FromInt16(int16) { let s = ""; const u8 = new Uint8Array(int16.buffer); for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function playPcm(b64) {
+  const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const i16 = new Int16Array(u8.buffer), f32 = new Float32Array(i16.length); for (let i = 0; i < i16.length; i++) f32[i] = i16[i] / 32768;
+  const buf = playCtx.createBuffer(1, f32.length, 24000); buf.copyToChannel(f32, 0);
+  const src = playCtx.createBufferSource(); src.buffer = buf; src.connect(playCtx.destination);
+  playHead = Math.max(playHead, playCtx.currentTime); src.start(playHead); playHead += buf.duration;
+  sources.push(src); src.onended = () => { sources = sources.filter(s => s !== src); };
+  $("#orb").style.transform = "scale(1.08)"; setTimeout(() => $("#orb").style.transform = "", 120);
+}
+async function startCall() {
+  $("#liveClaim").innerHTML = ""; tEl.innerHTML = ""; lastRole = null;
+  micStream = await navigator.mediaDevices.getUserMedia({audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true}});
+  micCtx = new AudioContext({sampleRate: 16000}); playCtx = new AudioContext({sampleRate: 24000}); playHead = 0;
+  const src = micCtx.createMediaStreamSource(micStream);
+  proc = micCtx.createScriptProcessor(2048, 1, 1);
+  ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/api/live/fnol");
+  ws.onmessage = ev => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "ready") { $("#liveState").textContent = `Connected to ${m.model}. Say hello in any language.`; $("#orb").classList.add("live"); }
+    else if (m.type === "audio") playPcm(m.data);
+    else if (m.type === "transcript") say(m.role, m.text);
+    else if (m.type === "interrupted") { sources.forEach(s => { try { s.stop(); } catch {} }); sources = []; playHead = 0; }
+    else if (m.type === "claim") {
+      const r = m.result;
+      $("#liveClaim").innerHTML = r.ok ? `<div class="card"><b>Claim filed</b> ${qpill(r.assigned_queue)} <span class="pill ${CONF[r.coverage_status] || "p-acc"}">${esc(r.coverage_status)}</span><br><code>${esc(r.claim_id)}</code><br><span class="muted">Clauses: ${esc(r.clauses.join(", ") || "—")}</span></div>` : `<div class="err">${esc(r.error)}</div>`;
+    } else if (m.type === "error") { $("#liveState").textContent = m.message; }
+  };
+  ws.onclose = () => stopCall(true);
+  proc.onaudioprocess = e => {
+    if (!ws || ws.readyState !== 1) return;
+    const f = e.inputBuffer.getChannelData(0), i16 = new Int16Array(f.length);
+    for (let i = 0; i < f.length; i++) { const s = Math.max(-1, Math.min(1, f[i])); i16[i] = s < 0 ? s * 0x8000 : s * 0x7fff; }
+    ws.send(JSON.stringify({type: "audio", data: b64FromInt16(i16)}));
+  };
+  src.connect(proc); proc.connect(micCtx.destination);
+  $("#callBtn").textContent = "End call"; $("#callBtn").className = "btn rec";
+  $("#liveState").textContent = "Connecting…";
+}
+function stopCall(fromClose) {
+  if (ws && !fromClose) { try { ws.send(JSON.stringify({type: "stop"})); ws.close(); } catch {} }
+  ws = null;
+  proc?.disconnect(); micStream?.getTracks().forEach(t => t.stop()); micCtx?.close().catch(() => {});
+  proc = micStream = micCtx = null;
+  $("#orb").classList.remove("live"); $("#callBtn").textContent = "Start call"; $("#callBtn").className = "btn primary";
+  if (!fromClose) $("#liveState").textContent = "Call ended.";
+}
+$("#callBtn").onclick = () => ws ? stopCall(false) : startCall().catch(e => { $("#liveState").textContent = "Could not start: " + e.message; stopCall(true); });
+$("#liveSend").onclick = () => { const t = $("#liveText").value.trim(); if (!t || !ws) return; ws.send(JSON.stringify({type: "text", text: t})); say("user", t); lastRole = null; $("#liveText").value = ""; };
+$("#liveText").onkeydown = e => { if (e.key === "Enter") $("#liveSend").click(); };
+</script>
+</body>
+</html>
